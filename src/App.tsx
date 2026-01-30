@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useStore } from './store/useStore';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import Calidad from './pages/Calidad';
@@ -10,6 +12,12 @@ import Reportes from './pages/Reportes';
 import VisitaSemanal from './pages/VisitaSemanal';
 
 function App() {
+  const fetchInitialData = useStore((state) => state.fetchInitialData);
+
+  useEffect(() => {
+    fetchInitialData();
+  }, [fetchInitialData]);
+
   return (
     <BrowserRouter>
       <Routes>

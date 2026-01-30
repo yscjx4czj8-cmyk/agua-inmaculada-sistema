@@ -1,6 +1,5 @@
 import { create } from 'zustand';
-// Los imports de date-fns se comentan o eliminan si no se usan temporalmente hasta Supabase
-// import { addDays, addWeeks, addMonths, subDays, subWeeks } from 'date-fns';
+import { supabase } from '../lib/supabase';
 import type {
   CalidadRegistro,
   Mantenimiento,
@@ -15,24 +14,32 @@ import type {
 } from '../types';
 
 interface AppState {
+  // Estado de carga
+  loading: boolean;
+  error: string | null;
+
   // Calidad del Agua
   registrosCalidad: CalidadRegistro[];
-  agregarRegistroCalidad: (registro: Omit<CalidadRegistro, 'id'>) => void;
+  fetchRegistrosCalidad: () => Promise<void>;
+  agregarRegistroCalidad: (registro: Omit<CalidadRegistro, 'id'>) => Promise<void>;
 
   // Mantenimientos
   mantenimientos: Mantenimiento[];
   registrosMantenimiento: RegistroMantenimiento[];
-  agregarRegistroMantenimiento: (registro: Omit<RegistroMantenimiento, 'id'>) => void;
+  fetchRegistrosMantenimiento: () => Promise<void>;
+  agregarRegistroMantenimiento: (registro: Omit<RegistroMantenimiento, 'id'>) => Promise<void>;
   actualizarPasoMantenimiento: (mantenimientoId: string, pasoNumero: number, completado: boolean) => void;
 
   // Ventas
   ventas: VentaSemanal[];
-  agregarVenta: (venta: Omit<VentaSemanal, 'id'>) => void;
+  fetchVentas: () => Promise<void>;
+  agregarVenta: (venta: Omit<VentaSemanal, 'id'>) => Promise<void>;
 
   // Gastos
   gastos: Gasto[];
   gastosFijos: GastoFijo[];
-  agregarGasto: (gasto: Omit<Gasto, 'id'>) => void;
+  fetchGastos: () => Promise<void>;
+  agregarGasto: (gasto: Omit<Gasto, 'id'>) => Promise<void>;
   actualizarGastoFijo: (id: string, monto: number) => void;
 
   // Visita Semanal
@@ -42,8 +49,9 @@ interface AppState {
 
   // Notificaciones
   notificaciones: Notificacion[];
-  marcarNotificacionLeida: (id: string) => void;
-  agregarNotificacion: (notificacion: Omit<Notificacion, 'id'>) => void;
+  fetchNotificaciones: () => Promise<void>;
+  marcarNotificacionLeida: (id: string) => Promise<void>;
+  agregarNotificacion: (notificacion: Omit<Notificacion, 'id'>) => Promise<void>;
 
   // Configuración
   precios: ConfiguracionPrecios;
@@ -51,9 +59,11 @@ interface AppState {
 
   // Manual
   manual: CapituloManual[];
+
+  // General
+  fetchInitialData: () => Promise<void>;
 }
 
-// Datos de ejemplo basados en el manual
 const mantenimientosIniciales: Mantenimiento[] = [
   {
     id: '1',
@@ -141,285 +151,30 @@ const mantenimientosIniciales: Mantenimiento[] = [
       { numero: 4, descripcion: 'Si el agua se torna de color azul, no tiene dureza. Si se torna morado o rojo indica que contiene dureza' },
     ],
   },
-  {
-    id: '6',
-    nombre: 'Lavado y Desinfección de Tubería',
-    descripcion: 'Cloración de línea del agua producto a los despachadores',
-    frecuencia: 'mensual',
-    categoria: 'desinfeccion',
-    tiempoEstimado: 60,
-    materialesNecesarios: ['Cloro comercial (Cloralex)'],
-    pasos: [
-      { numero: 1, descripcion: 'Llene el tanque de agua producto con 250 litros de agua y agregue 150 mL de cloro comercial' },
-      { numero: 2, descripcion: 'Abra de forma manual la válvula solenoide de llenado girando la bobina en sentido ON' },
-      { numero: 3, descripcion: 'Hasta percibir el olor a cloro en la espiga de llenado, cierre la válvula solenoide' },
-      { numero: 4, descripcion: 'Para que haya flujo de agua por la tubería de enjuague, abra de forma manual la válvula solenoide' },
-      { numero: 5, descripcion: 'Deje la tubería con cloro en reposo de 8 a 12 horas' },
-      { numero: 6, descripcion: 'Llene el tanque con agua filtrada y abra nuevamente la válvula solenoide de enjuague y llenado' },
-    ],
-  },
-  {
-    id: '7',
-    nombre: 'Lavado y Desinfección de Tanque',
-    descripcion: 'Limpieza interna del tanque de agua producto',
-    frecuencia: 'mensual',
-    categoria: 'limpieza',
-    tiempoEstimado: 45,
-    materialesNecesarios: ['Germicida', 'Trapo de microfibra'],
-    pasos: [
-      { numero: 1, descripcion: 'Lave perfectamente con germicida y trapo de microfibra todas las paredes internas del tanque' },
-      { numero: 2, descripcion: 'Después del lavado interno, enjuague con abundante agua y retire el agua acumulada en el tanque' },
-      { numero: 3, descripcion: 'Seque con un trapo de microfibra que no deje residuos' },
-      { numero: 4, descripcion: 'Verifique el nivel del cloro en el tanque de agua cruda' },
-    ],
-  },
-  {
-    id: '8',
-    nombre: 'Cambio de Foco de Luz Ultravioleta',
-    descripcion: 'Reemplazo de lámpara UV',
-    frecuencia: 'anual',
-    categoria: 'desinfeccion',
-    tiempoEstimado: 30,
-    materialesNecesarios: ['Foco UV nuevo'],
-    pasos: [
-      { numero: 1, descripcion: 'Desconecte la lámpara de la fuente de energía' },
-      { numero: 2, descripcion: 'Retire con cuidado el capuchón negro del extremo' },
-      { numero: 3, descripcion: 'Observe la conexión de la lámpara' },
-      { numero: 4, descripcion: 'Separe el conector de los filamentos del foco UV' },
-      { numero: 5, descripcion: 'Saque el foco UV de la carcasa de acero inoxidable' },
-      { numero: 6, descripcion: 'Desconecte los filamentos de ambos extremos' },
-      { numero: 7, descripcion: 'Coloque el nuevo foco de la misma manera que se retiró el anterior' },
-    ],
-  },
-  {
-    id: '9',
-    nombre: 'Limpieza de Cuarzo',
-    descripcion: 'Limpieza del cuarzo que cubre el foco UV',
-    frecuencia: 'anual',
-    categoria: 'limpieza',
-    tiempoEstimado: 30,
-    materialesNecesarios: ['Trapo de microfibra'],
-    pasos: [
-      { numero: 1, descripcion: 'Desconecte la lámpara UV y el presurizador de la corriente eléctrica' },
-      { numero: 2, descripcion: 'Despresurice la línea girando la bobina de la válvula solenoide en sentido ON' },
-      { numero: 3, descripcion: 'Retire con cuidado el capuchón negro del extremo' },
-      { numero: 4, descripcion: 'Retire el foco ultravioleta y desconéctelo del balastro' },
-      { numero: 5, descripcion: 'Retire las tapas roscables de la carcasa de la lámpara' },
-      { numero: 6, descripcion: 'Retire los empaques que sostienen el cuarzo y retirar el mismo' },
-      { numero: 7, descripcion: 'Limpie perfectamente el cuarzo con un trapo de microfibra' },
-      { numero: 8, descripcion: 'Coloque nuevamente las piezas antes retiradas' },
-    ],
-  },
-  {
-    id: '10',
-    nombre: 'Mantenimiento a Válvula Solenoide',
-    descripcion: 'Limpieza y verificación de válvula solenoide',
-    frecuencia: 'variable',
-    categoria: 'valvulas',
-    tiempoEstimado: 45,
-    materialesNecesarios: ['Destornillador', 'Dado 3/16"', 'Agua purificada'],
-    pasos: [
-      { numero: 1, descripcion: 'Desconecte el equipo de la corriente eléctrica' },
-      { numero: 2, descripcion: 'Cierre la válvula de paso del tanque de agua producto y despresurice la línea' },
-      { numero: 3, descripcion: 'Con una matraca y un dado 3/16" desatornille los tornillos de la tapa de la válvula' },
-      { numero: 4, descripcion: 'Lave con agua purificada todos los componentes que fueron retirados' },
-      { numero: 5, descripcion: 'Coloque la base del diafragma y el diafragma cuidando la posición' },
-      { numero: 6, descripcion: 'Estire el resorte con fuerza moderada, debe quedar a una altura de 2.5 a 3 cm' },
-      { numero: 7, descripcion: 'Coloque el resorte en la posición correcta, después coloque la tapa' },
-      { numero: 8, descripcion: 'Gire en sentido OFF para cerrar la válvula solenoide' },
-    ],
-  },
 ];
 
-export const useStore = create<AppState>((set) => ({
-  // Estado inicial - Calidad del Agua
+export const useStore = create<AppState>((set, get) => ({
+  loading: false,
+  error: null,
+
   registrosCalidad: [],
-
-  agregarRegistroCalidad: (registro) => {
-    const nuevoRegistro: CalidadRegistro = {
-      ...registro,
-      id: Date.now().toString(),
-    };
-    set((state) => ({
-      registrosCalidad: [...state.registrosCalidad, nuevoRegistro],
-    }));
-  },
-
-  // Mantenimientos
-  mantenimientos: mantenimientosIniciales,
   registrosMantenimiento: [],
-
-  agregarRegistroMantenimiento: (registro) => {
-    const nuevoRegistro: RegistroMantenimiento = {
-      ...registro,
-      id: Date.now().toString(),
-    };
-    set((state) => ({
-      registrosMantenimiento: [...state.registrosMantenimiento, nuevoRegistro],
-    }));
-  },
-
-  actualizarPasoMantenimiento: (mantenimientoId, pasoNumero, completado) => {
-    set((state) => ({
-      mantenimientos: state.mantenimientos.map((m) =>
-        m.id === mantenimientoId
-          ? {
-            ...m,
-            pasos: m.pasos.map((p) =>
-              p.numero === pasoNumero ? { ...p, completado } : p
-            ),
-          }
-          : m
-      ),
-    }));
-  },
-
-  // Ventas
   ventas: [],
-
-  agregarVenta: (venta) => {
-    const nuevaVenta: VentaSemanal = {
-      ...venta,
-      id: Date.now().toString(),
-    };
-    set((state) => ({
-      ventas: [...state.ventas, nuevaVenta],
-    }));
-  },
-
-  // Gastos
   gastos: [],
-
+  notificaciones: [],
+  mantenimientos: mantenimientosIniciales,
   gastosFijos: [
     { id: '1', concepto: 'Agua', monto: 800, categoria: 'servicios' },
     { id: '2', concepto: 'Luz', monto: 1200, categoria: 'servicios' },
     { id: '3', concepto: 'Internet', monto: 500, categoria: 'servicios' },
     { id: '4', concepto: 'Renta del local', monto: 3500, categoria: 'servicios' },
   ],
-
-  agregarGasto: (gasto) => {
-    const nuevoGasto: Gasto = {
-      ...gasto,
-      id: Date.now().toString(),
-    };
-    set((state) => ({
-      gastos: [...state.gastos, nuevoGasto],
-    }));
-  },
-
-  actualizarGastoFijo: (id, monto) => {
-    set((state) => ({
-      gastosFijos: state.gastosFijos.map((g) =>
-        g.id === id ? { ...g, monto } : g
-      ),
-    }));
-  },
-
-  // Tareas de Visita
-  tareasVisita: [],
-
-  completarTarea: (id) => {
-    set((state) => ({
-      tareasVisita: state.tareasVisita.map((t) =>
-        t.id === id ? { ...t, completada: true } : t
-      ),
-    }));
-  },
-
-  generarPlanVisita: () => {
-    const tareas: TareaVisita[] = [
-      {
-        id: '1',
-        tipo: 'medicion',
-        titulo: 'Medición de Calidad del Agua',
-        descripcion: 'Medir cloro residual, SDT y dureza',
-        prioridad: 'urgente',
-        tiempoEstimado: 15,
-        completada: false,
-        orden: 1,
-      },
-      {
-        id: '2',
-        mantenimientoId: '2',
-        tipo: 'mantenimiento',
-        titulo: 'Retrolavado Filtro Dual',
-        descripcion: 'Realizar retrolavado semanal del filtro de arena y carbón',
-        prioridad: 'urgente',
-        tiempoEstimado: 10,
-        completada: false,
-        orden: 2,
-      },
-      {
-        id: '3',
-        mantenimientoId: '4',
-        tipo: 'mantenimiento',
-        titulo: 'Limpieza Filtros Pulidores',
-        descripcion: 'Lavar filtros pulidores con cloro',
-        prioridad: 'normal',
-        tiempoEstimado: 30,
-        completada: false,
-        orden: 3,
-      },
-      {
-        id: '4',
-        tipo: 'registro',
-        titulo: 'Registrar Ventas de la Semana',
-        descripcion: 'Importar o registrar datos de ventas',
-        prioridad: 'normal',
-        tiempoEstimado: 5,
-        completada: false,
-        orden: 4,
-      },
-      {
-        id: '5',
-        tipo: 'revision',
-        titulo: 'Verificar Nivel de Sal',
-        descripcion: 'Revisar tanque de salmuera',
-        prioridad: 'baja',
-        tiempoEstimado: 5,
-        completada: false,
-        orden: 5,
-      },
-    ];
-
-    set({ tareasVisita: tareas });
-  },
-
-  // Notificaciones
-  notificaciones: [],
-
-  marcarNotificacionLeida: (id) => {
-    set((state) => ({
-      notificaciones: state.notificaciones.map((n) =>
-        n.id === id ? { ...n, leida: true } : n
-      ),
-    }));
-  },
-
-  agregarNotificacion: (notificacion) => {
-    const nuevaNotificacion: Notificacion = {
-      ...notificacion,
-      id: Date.now().toString(),
-    };
-    set((state) => ({
-      notificaciones: [nuevaNotificacion, ...state.notificaciones],
-    }));
-  },
-
-  // Configuración
   precios: {
     garrafon20L: 30,
     garrafon10L: 18,
     litro: 2,
   },
-
-  actualizarPrecios: (precios) => {
-    set((state) => ({
-      precios: { ...state.precios, ...precios },
-    }));
-  },
-
-  // Manual (datos básicos, se puede expandir)
+  tareasVisita: [],
   manual: [
     {
       id: '1',
@@ -443,4 +198,210 @@ export const useStore = create<AppState>((set) => ({
       tags: ['suavizador', 'dureza', 'resina'],
     },
   ],
+
+  fetchInitialData: async () => {
+    set({ loading: true });
+    try {
+      await Promise.all([
+        get().fetchRegistrosCalidad(),
+        get().fetchRegistrosMantenimiento(),
+        get().fetchVentas(),
+        get().fetchGastos(),
+        get().fetchNotificaciones(),
+      ]);
+    } catch (err) {
+      set({ error: 'Error al cargar los datos' });
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  fetchRegistrosCalidad: async () => {
+    const { data, error } = await supabase
+      .from('registros_calidad')
+      .select('*')
+      .order('fecha', { ascending: false });
+    if (!error) set({ registrosCalidad: data.map(r => ({ ...r, fecha: new Date(r.fecha), proximaMedicion: new Date(r.proxima_medicion) })) });
+  },
+
+  agregarRegistroCalidad: async (registro) => {
+    const { data, error } = await supabase
+      .from('registros_calidad')
+      .insert([{
+        fecha: registro.fecha.toISOString(),
+        cloro_residual: registro.cloroResidual,
+        sdt: registro.sdt,
+        dureza: registro.dureza,
+        responsable: registro.responsable,
+        observaciones: registro.observaciones,
+        proxima_medicion: registro.proximaMedicion.toISOString(),
+      }])
+      .select();
+    if (!error && data) {
+      const nuevo = { ...data[0], fecha: new Date(data[0].fecha), proximaMedicion: new Date(data[0].proxima_medicion), cloroResidual: data[0].cloro_residual };
+      set((state) => ({ registrosCalidad: [nuevo, ...state.registrosCalidad] }));
+    }
+  },
+
+  fetchRegistrosMantenimiento: async () => {
+    const { data, error } = await supabase
+      .from('registros_mantenimiento')
+      .select('*')
+      .order('fecha_realizado', { ascending: false });
+    if (!error) set({ registrosMantenimiento: data.map(r => ({ ...r, fechaRealizado: new Date(r.fecha_realizado), proximoMantenimiento: new Date(r.proximo_mantenimiento), mantenimientoId: r.mantenimiento_id })) });
+  },
+
+  agregarRegistroMantenimiento: async (registro) => {
+    const { data, error } = await supabase
+      .from('registros_mantenimiento')
+      .insert([{
+        mantenimiento_id: registro.mantenimientoId,
+        fecha_realizado: registro.fechaRealizado.toISOString(),
+        responsable: registro.responsable,
+        observaciones: registro.observaciones,
+        proximo_mantenimiento: registro.proximoMantenimiento.toISOString(),
+        duracion: registro.duracion,
+      }])
+      .select();
+    if (!error && data) {
+      const nuevo = { ...data[0], fechaRealizado: new Date(data[0].fecha_realizado), proximoMantenimiento: new Date(data[0].proximo_mantenimiento), mantenimientoId: data[0].mantenimiento_id };
+      set((state) => ({ registrosMantenimiento: [nuevo, ...state.registrosMantenimiento] }));
+    }
+  },
+
+  actualizarPasoMantenimiento: (mantenimientoId, pasoNumero, completado) => {
+    set((state) => ({
+      mantenimientos: state.mantenimientos.map((m) =>
+        m.id === mantenimientoId
+          ? {
+            ...m,
+            pasos: m.pasos.map((p) =>
+              p.numero === pasoNumero ? { ...p, completado } : p
+            ),
+          }
+          : m
+      ),
+    }));
+  },
+
+  fetchVentas: async () => {
+    const { data, error } = await supabase
+      .from('ventas')
+      .select('*')
+      .order('semana_inicio', { ascending: false });
+    if (!error) set({ ventas: data.map(v => ({ ...v, semanaInicio: new Date(v.semana_inicio), semanaFin: new Date(v.semana_fin), garrafonesVendidos: v.garrafones_vendidos, ingresoTotal: v.ingreso_total, promedioDiario: v.promedio_diario })) });
+  },
+
+  agregarVenta: async (venta) => {
+    const { data, error } = await supabase
+      .from('ventas')
+      .insert([{
+        semana_inicio: venta.semanaInicio.toISOString().split('T')[0],
+        semana_fin: venta.semanaFin.toISOString().split('T')[0],
+        garrafones_vendidos: venta.garrafonesVendidos,
+        ingreso_total: venta.ingresoTotal,
+        promedio_diario: venta.promedioDiario,
+      }])
+      .select();
+    if (!error && data) {
+      const nueva = { ...data[0], semanaInicio: new Date(data[0].semana_inicio), semanaFin: new Date(data[0].semana_fin), garrafonesVendidos: data[0].garrafones_vendidos, ingresoTotal: data[0].ingreso_total, promedioDiario: data[0].promedio_diario };
+      set((state) => ({ ventas: [nueva, ...state.ventas] }));
+    }
+  },
+
+  fetchGastos: async () => {
+    const { data, error } = await supabase
+      .from('gastos')
+      .select('*')
+      .order('fecha', { ascending: false });
+    if (!error) set({ gastos: data.map(g => ({ ...g, fecha: new Date(g.fecha) })) });
+  },
+
+  agregarGasto: async (gasto) => {
+    const { data, error } = await supabase
+      .from('gastos')
+      .insert([{
+        fecha: gasto.fecha.toISOString().split('T')[0],
+        concepto: gasto.concepto,
+        monto: gasto.monto,
+        categoria: gasto.categoria,
+        recurrente: gasto.recurrente,
+        notas: gasto.notas,
+      }])
+      .select();
+    if (!error && data) {
+      const nuevo = { ...data[0], fecha: new Date(data[0].fecha) };
+      set((state) => ({ gastos: [nuevo, ...state.gastos] }));
+    }
+  },
+
+  actualizarGastoFijo: (id, monto) => {
+    set((state) => ({
+      gastosFijos: state.gastosFijos.map((g) =>
+        g.id === id ? { ...g, monto } : g
+      ),
+    }));
+  },
+
+  completarTarea: (id) => {
+    set((state) => ({
+      tareasVisita: state.tareasVisita.map((t) =>
+        t.id === id ? { ...t, completada: true } : t
+      ),
+    }));
+  },
+
+  generarPlanVisita: () => {
+    const tareas: TareaVisita[] = [
+      { id: '1', tipo: 'medicion', titulo: 'Medición de Calidad', descripcion: 'Medir cloro, SDT y dureza', prioridad: 'urgente', tiempoEstimado: 15, completada: false, orden: 1 },
+      { id: '2', mantenimientoId: '2', tipo: 'mantenimiento', titulo: 'Retrolavado Filtro Dual', descripcion: 'Retrolavado semanal de arena y carbón', prioridad: 'urgente', tiempoEstimado: 10, completada: false, orden: 2 },
+      { id: '3', mantenimientoId: '4', tipo: 'mantenimiento', titulo: 'Limpieza Filtros Pulidores', descripcion: 'Lavar filtros con cloro', prioridad: 'normal', tiempoEstimado: 30, completada: false, orden: 3 },
+      { id: '4', tipo: 'registro', titulo: 'Registrar Ventas', descripcion: 'Registrar ventas de la semana', prioridad: 'normal', tiempoEstimado: 5, completada: false, orden: 4 },
+      { id: '5', tipo: 'revision', titulo: 'Verificar Sal', descripcion: 'Revisar tanque de salmuera', prioridad: 'baja', tiempoEstimado: 5, completada: false, orden: 5 },
+    ];
+    set({ tareasVisita: tareas });
+  },
+
+  fetchNotificaciones: async () => {
+    const { data, error } = await supabase
+      .from('notificaciones')
+      .select('*')
+      .order('fecha', { ascending: false });
+    if (!error) set({ notificaciones: data.map(n => ({ ...n, fecha: new Date(n.fecha), accion: n.ruta_accion ? { label: 'Ver', ruta: n.ruta_accion } : undefined })) });
+  },
+
+  marcarNotificacionLeida: async (id) => {
+    const { error } = await supabase
+      .from('notificaciones')
+      .update({ leida: true })
+      .eq('id', id);
+    if (!error) {
+      set((state) => ({
+        notificaciones: state.notificaciones.map((n) =>
+          n.id === id ? { ...n, leida: true } : n
+        ),
+      }));
+    }
+  },
+
+  agregarNotificacion: async (notificacion) => {
+    const { data, error } = await supabase
+      .from('notificaciones')
+      .insert([{
+        tipo: notificacion.tipo,
+        titulo: notificacion.titulo,
+        mensaje: notificacion.mensaje,
+        fecha: notificacion.fecha.toISOString(),
+        ruta_accion: notificacion.accion?.ruta,
+      }])
+      .select();
+    if (!error && data) {
+      const nueva = { ...data[0], fecha: new Date(data[0].fecha), accion: data[0].ruta_accion ? { label: 'Ver', ruta: data[0].ruta_accion } : undefined };
+      set((state) => ({ notificaciones: [nueva, ...state.notificaciones] }));
+    }
+  },
+
+  actualizarPrecios: (precios) => {
+    set((state) => ({ precios: { ...state.precios, ...precios } }));
+  },
 }));
