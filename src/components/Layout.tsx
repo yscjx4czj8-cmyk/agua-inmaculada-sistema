@@ -21,71 +21,66 @@ const Layout = () => {
   const notificacionesNoLeidas = notificaciones.filter((n) => !n.leida).length;
 
   const navItems = [
-    { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+    { to: '/dashboard', icon: LayoutDashboard, label: 'Panel Principal' },
     { to: '/visita', icon: ClipboardCheck, label: 'Mi Visita' },
-    { to: '/calidad', icon: Droplet, label: 'Calidad' },
+    { to: '/calidad', icon: Droplet, label: 'Control de Calidad' },
     { to: '/mantenimientos', icon: Wrench, label: 'Mantenimientos' },
-    { to: '/agenda', icon: Calendar, label: 'Agenda' },
-    { to: '/finanzas', icon: DollarSign, label: 'Finanzas' },
-    { to: '/manual', icon: BookOpen, label: 'Manual' },
-    { to: '/reportes', icon: FileText, label: 'Reportes' },
+    { to: '/agenda', icon: Calendar, label: 'Agenda de Visitas' },
+    { to: '/finanzas', icon: DollarSign, label: 'Gestión Financiera' },
+    { to: '/manual', icon: BookOpen, label: 'Manual Técnico' },
+    { to: '/reportes', icon: FileText, label: 'Centro de Reportes' },
   ];
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="flex h-screen bg-[#f8fafc]">
       {/* Sidebar */}
       <aside
-        className={`${
-          sidebarOpen ? 'w-64' : 'w-20'
-        } bg-white shadow-xl transition-all duration-300 flex flex-col`}
+        className={`${sidebarOpen ? 'w-72' : 'w-24'
+          } glass-card m-4 mr-0 transition-all duration-500 ease-in-out flex flex-col overflow-hidden`}
       >
         {/* Logo */}
-        <div className="p-6 border-b border-gray-200">
+        <div className="p-8 pb-6">
           <div className="flex items-center justify-between">
             {sidebarOpen ? (
-              <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-primary-500 to-pink-500 bg-clip-text text-transparent">
+              <div className="animate-fade-in">
+                <h1 className="text-xl font-bold tracking-tight text-slate-800 flex items-center gap-2">
+                  <div className="p-1.5 bg-primary-500 rounded-lg shadow-lg shadow-primary-500/30">
+                    <Droplet className="w-5 h-5 text-white fill-white/20" />
+                  </div>
                   Agua Inmaculada
                 </h1>
-                <p className="text-xs text-gray-500 mt-1">Sistema de Gestión</p>
+                <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mt-1.5 ml-9">
+                  Enterprise v1.0
+                </p>
               </div>
             ) : (
-              <Droplet className="w-8 h-8 text-primary-500" />
+              <div className="mx-auto p-2.5 bg-primary-500 rounded-xl shadow-lg shadow-primary-500/30">
+                <Droplet className="w-6 h-6 text-white fill-white/20" />
+              </div>
             )}
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              {sidebarOpen ? (
-                <X className="w-5 h-5 text-gray-600" />
-              ) : (
-                <Menu className="w-5 h-5 text-gray-600" />
-              )}
-            </button>
           </div>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-2">
+        <nav className="flex-1 px-4 space-y-1 overflow-y-auto pt-4">
           {navItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
-                  isActive
-                    ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg'
-                    : 'text-gray-600 hover:bg-gray-100'
+                `flex items-center gap-3.5 px-4 py-3.5 rounded-xl transition-all duration-300 group ${isActive
+                  ? 'nav-link-active'
+                  : 'text-slate-500 hover:bg-slate-50 hover:text-primary-600'
                 }`
               }
             >
-              <item.icon className="w-5 h-5" />
+              <item.icon className={`w-5 h-5 transition-transform duration-300 group-hover:scale-110 ${sidebarOpen ? '' : 'mx-auto'}`} />
               {sidebarOpen && (
-                <span className="font-medium">{item.label}</span>
+                <span className="font-semibold text-sm tracking-tight">{item.label}</span>
               )}
               {item.to === '/visita' && sidebarOpen && (
-                <span className="ml-auto bg-pink-500 text-white text-xs px-2 py-1 rounded-full">
-                  NUEVO
+                <span className="ml-auto bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg shadow-rose-500/20">
+                  NEW
                 </span>
               )}
             </NavLink>
@@ -93,19 +88,19 @@ const Layout = () => {
         </nav>
 
         {/* User Section */}
-        <div className="p-4 border-t border-gray-200">
+        <div className="p-6 border-t border-slate-100/50">
           {sidebarOpen ? (
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary-500 to-pink-500 flex items-center justify-center text-white font-bold">
+            <div className="flex items-center gap-4 group cursor-pointer p-2 rounded-2xl hover:bg-slate-50 transition-colors">
+              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center text-white font-bold shadow-lg shadow-primary-500/20">
                 S
               </div>
-              <div>
-                <p className="font-medium text-gray-800">Soto</p>
-                <p className="text-xs text-gray-500">Propietario</p>
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-slate-800 truncate">Soto</p>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Propietario</p>
               </div>
             </div>
           ) : (
-            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary-500 to-pink-500 flex items-center justify-center text-white font-bold mx-auto">
+            <div className="w-11 h-11 mx-auto rounded-xl bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center text-white font-bold shadow-lg shadow-primary-500/20">
               S
             </div>
           )}
@@ -113,40 +108,49 @@ const Layout = () => {
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden lg:pl-4">
         {/* Header */}
-        <header className="bg-white shadow-sm border-b border-gray-200">
-          <div className="flex items-center justify-between px-8 py-4">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-800">
-                ¡Bienvenido, Soto! 👋
-              </h2>
-              <p className="text-sm text-gray-500 mt-1">
-                {new Date().toLocaleDateString('es-MX', {
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}
-              </p>
+        <header className="px-8 py-6 h-28 flex items-center">
+          <div className="flex items-center justify-between w-full">
+            <div className="flex items-center gap-6">
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="p-3 rounded-xl bg-white border border-slate-100 shadow-sm text-slate-600 hover:bg-slate-50 hover:shadow transition-all active:scale-95"
+              >
+                {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
+
+              <div>
+                <h2 className="text-2xl font-bold text-slate-800 tracking-tight">
+                  {sidebarOpen ? '¡Bienvenido de nuevo, Soto!' : 'Panel de Control'}
+                </h2>
+                <p className="text-sm font-medium text-slate-400">
+                  {new Date().toLocaleDateString('es-MX', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </p>
+              </div>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-6">
               {/* Notificaciones */}
-              <button className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                <Bell className="w-6 h-6 text-gray-600" />
+              <button className="relative p-3 bg-white border border-slate-100 shadow-sm rounded-xl text-slate-600 hover:bg-slate-50 hover:shadow transition-all group active:scale-95">
+                <Bell className="w-5 h-5 group-hover:shake" />
                 {notificacionesNoLeidas > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                  <span className="absolute -top-1.5 -right-1.5 bg-rose-500 text-white text-[10px] font-bold w-5 h-5 rounded-lg flex items-center justify-center shadow-lg shadow-rose-500/30">
                     {notificacionesNoLeidas}
                   </span>
                 )}
               </button>
 
               {/* Status Badge */}
-              <div className="flex items-center gap-2 px-4 py-2 bg-green-50 border border-green-200 rounded-lg">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-sm font-medium text-green-700">
-                  Sistema Operando
+              <div className="flex items-center gap-2.5 px-5 py-2.5 bg-emerald-50 border border-emerald-100 rounded-xl shadow-sm text-emerald-700">
+                <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
+                <span className="text-xs font-bold tracking-wide uppercase">
+                  Sistema Activo
                 </span>
               </div>
             </div>
@@ -154,8 +158,8 @@ const Layout = () => {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-auto p-8">
-          <div className="animate-fade-in">
+        <main className="flex-1 overflow-auto px-8 pb-8">
+          <div className="max-w-7xl mx-auto space-y-8 animate-fade-in">
             <Outlet />
           </div>
         </main>
