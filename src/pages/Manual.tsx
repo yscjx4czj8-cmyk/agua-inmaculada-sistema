@@ -142,23 +142,42 @@ const Manual = () => {
 
             {/* Contenido Expandido */}
             {capituloExpandido === capitulo.id && (
-              <div className="mt-6 pt-6 border-t border-gray-200">
-                {/* Advertencias */}
-                {capitulo.advertencias && capitulo.advertencias.length > 0 && (
-                  <div className="mb-6 p-4 bg-orange-50 border-l-4 border-orange-500 rounded-r-lg">
-                    <div className="flex items-start gap-3">
-                      <AlertTriangle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
-                      <div>
-                        <h4 className="font-bold text-orange-900 mb-2">⚠️ Advertencias Importantes</h4>
-                        <ul className="space-y-1">
-                          {capitulo.advertencias.map((advertencia, idx) => (
-                            <li key={idx} className="text-sm text-orange-800">
-                              • {advertencia}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
+              <div className="mt-6 pt-6 border-t border-gray-200 space-y-6">
+                {/* Contenido Principal */}
+                {capitulo.contenido && (
+                  <div className="p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
+                    <p className="text-gray-800 leading-relaxed">{capitulo.contenido}</p>
+                  </div>
+                )}
+
+                {/* Imágenes del capítulo */}
+                {capitulo.imagenes && capitulo.imagenes.length > 0 && (
+                  <div className="space-y-2">
+                    <h4 className="font-bold text-gray-800 text-lg flex items-center gap-2">
+                      <ImageIcon className="w-5 h-5" />
+                      Imágenes de Referencia
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {capitulo.imagenes.map((imagen, idx) => (
+                        <div key={idx} className="p-3 bg-purple-50 border border-purple-200 rounded-lg flex items-start gap-2">
+                          <ImageIcon className="w-4 h-4 text-purple-600 flex-shrink-0 mt-0.5" />
+                          <p className="text-sm text-purple-800 italic">{imagen}</p>
+                        </div>
+                      ))}
                     </div>
+                  </div>
+                )}
+
+                {/* Subsecciones */}
+                {capitulo.subsecciones && capitulo.subsecciones.length > 0 && (
+                  <div className="space-y-4">
+                    <h4 className="font-bold text-gray-800 text-lg">📚 Detalles Adicionales</h4>
+                    {capitulo.subsecciones.map((subseccion, idx) => (
+                      <div key={idx} className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                        <h5 className="font-bold text-gray-800 mb-2">{subseccion.titulo}</h5>
+                        <p className="text-gray-700 whitespace-pre-line leading-relaxed">{subseccion.contenido}</p>
+                      </div>
+                    ))}
                   </div>
                 )}
 
@@ -178,12 +197,18 @@ const Manual = () => {
                             {paso.numero}
                           </div>
                         </div>
-                        <div className="flex-1">
+                        <div className="flex-1 space-y-2">
                           <p className="text-gray-800 leading-relaxed">{paso.descripcion}</p>
                           {paso.imagen && (
-                            <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-start gap-2">
+                            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-start gap-2">
                               <ImageIcon className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
                               <p className="text-sm text-blue-800 italic">{paso.imagen}</p>
+                            </div>
+                          )}
+                          {paso.advertencia && (
+                            <div className="p-3 bg-orange-50 border border-orange-300 rounded-lg flex items-start gap-2">
+                              <AlertTriangle className="w-4 h-4 text-orange-600 flex-shrink-0 mt-0.5" />
+                              <p className="text-sm text-orange-800 font-medium">{paso.advertencia}</p>
                             </div>
                           )}
                         </div>
@@ -192,50 +217,15 @@ const Manual = () => {
                   </div>
                 )}
 
-                {/* Tabla de contenido adicional (para capítulos con tablas) */}
-                {capitulo.id === '21' && (
-                  <div className="mt-6">
-                    <h4 className="font-bold text-gray-800 text-lg mb-4">📊 Tabla de Frecuencias de Análisis</h4>
-                    <div className="overflow-x-auto">
-                      <table className="min-w-full bg-white border border-gray-300 rounded-lg">
-                        <thead className="bg-gray-100">
-                          <tr>
-                            <th className="px-4 py-3 text-left text-sm font-bold text-gray-700 border-b">Tipo de Análisis</th>
-                            <th className="px-4 py-3 text-left text-sm font-bold text-gray-700 border-b">Frecuencia</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-200">
-                          <tr><td className="px-4 py-3 text-sm">Análisis Bacteriológico</td><td className="px-4 py-3 text-sm font-medium text-green-700">Mensual</td></tr>
-                          <tr><td className="px-4 py-3 text-sm">Análisis Fisicoquímico</td><td className="px-4 py-3 text-sm font-medium text-blue-700">Trimestral</td></tr>
-                          <tr><td className="px-4 py-3 text-sm">Verificación de Cloro Residual</td><td className="px-4 py-3 text-sm font-medium text-purple-700">Diaria</td></tr>
-                          <tr><td className="px-4 py-3 text-sm">Verificación de pH</td><td className="px-4 py-3 text-sm font-medium text-purple-700">Diaria</td></tr>
-                          <tr><td className="px-4 py-3 text-sm">Medición de SDT</td><td className="px-4 py-3 text-sm font-medium text-orange-700">Semanal</td></tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                )}
-
-                {capitulo.id === '22' && (
-                  <div className="mt-6">
-                    <h4 className="font-bold text-gray-800 text-lg mb-4">🔧 Tabla de Frecuencias de Mantenimiento</h4>
-                    <div className="overflow-x-auto">
-                      <table className="min-w-full bg-white border border-gray-300 rounded-lg">
-                        <thead className="bg-gray-100">
-                          <tr>
-                            <th className="px-4 py-3 text-left text-sm font-bold text-gray-700 border-b">Equipo/Tarea</th>
-                            <th className="px-4 py-3 text-left text-sm font-bold text-gray-700 border-b">Frecuencia</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-200">
-                          <tr><td className="px-4 py-3 text-sm">Retrolavado de Filtros</td><td className="px-4 py-3 text-sm font-medium text-orange-700">Semanal</td></tr>
-                          <tr><td className="px-4 py-3 text-sm">Limpieza de Tanques</td><td className="px-4 py-3 text-sm font-medium text-green-700">Mensual</td></tr>
-                          <tr><td className="px-4 py-3 text-sm">Cambio de Lámpara UV</td><td className="px-4 py-3 text-sm font-medium text-blue-700">Anual</td></tr>
-                          <tr><td className="px-4 py-3 text-sm">Regeneración de Suavizador</td><td className="px-4 py-3 text-sm font-medium text-purple-700">Según sea necesario</td></tr>
-                          <tr><td className="px-4 py-3 text-sm">Verificación de Generador de Ozono</td><td className="px-4 py-3 text-sm font-medium text-orange-700">Semanal</td></tr>
-                          <tr><td className="px-4 py-3 text-sm">Desinfección General</td><td className="px-4 py-3 text-sm font-medium text-green-700">Mensual</td></tr>
-                        </tbody>
-                      </table>
+                {/* Información Importante */}
+                {capitulo.importante && (
+                  <div className="p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded-r-lg">
+                    <div className="flex items-start gap-3">
+                      <AlertTriangle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <h4 className="font-bold text-yellow-900 mb-2">⚡ Importante</h4>
+                        <p className="text-sm text-yellow-800 leading-relaxed">{capitulo.importante}</p>
+                      </div>
                     </div>
                   </div>
                 )}

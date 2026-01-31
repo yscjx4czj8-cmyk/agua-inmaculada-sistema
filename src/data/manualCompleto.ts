@@ -71,7 +71,7 @@ export const manualCompleto: CapituloManual[] = [
       },
     ],
     tags: ['medicion', 'cloro', 'ph', 'calidad', 'pruebas'],
-    frecuencia: 'Diaria',
+    frecuencia: 'Semanal',
     importante: 'VERIFIQUE: Si la lectura es mayor a 0 en la muestra del área de llenado, realice retrolavado al filtro Dual.',
   },
   {

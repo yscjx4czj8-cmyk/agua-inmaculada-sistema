@@ -20,12 +20,14 @@ const Finanzas = () => {
     concepto: '',
     monto: 0,
     categoria: 'insumos' as const,
+    fecha: format(new Date(), 'yyyy-MM-dd'),
   });
 
   const [ventaForm, setVentaForm] = useState({
     garrafon20L: 0,
     garrafon10L: 0,
     litros: 0,
+    fecha: format(new Date(), 'yyyy-MM-dd'),
   });
 
   // Calcular totales del mes
@@ -53,19 +55,21 @@ const Finanzas = () => {
   const handleAgregarGasto = (e: React.FormEvent) => {
     e.preventDefault();
     agregarGasto({
-      ...gastoForm,
-      fecha: new Date(),
+      concepto: gastoForm.concepto,
+      monto: gastoForm.monto,
+      categoria: gastoForm.categoria,
+      fecha: new Date(gastoForm.fecha),
       recurrente: false,
     });
     setShowGastoForm(false);
-    setGastoForm({ concepto: '', monto: 0, categoria: 'insumos' });
+    setGastoForm({ concepto: '', monto: 0, categoria: 'insumos', fecha: format(new Date(), 'yyyy-MM-dd') });
   };
 
   const handleAgregarVenta = (e: React.FormEvent) => {
     e.preventDefault();
-    const hoy = new Date();
-    const inicioSemana = new Date(hoy);
-    inicioSemana.setDate(hoy.getDate() - hoy.getDay());
+    const fechaSeleccionada = new Date(ventaForm.fecha);
+    const inicioSemana = new Date(fechaSeleccionada);
+    inicioSemana.setDate(fechaSeleccionada.getDate() - fechaSeleccionada.getDay());
     const finSemana = new Date(inicioSemana);
     finSemana.setDate(inicioSemana.getDate() + 6);
 
@@ -86,7 +90,7 @@ const Finanzas = () => {
       promedioDiario: ingresoTotal / 7,
     });
     setShowVentaForm(false);
-    setVentaForm({ garrafon20L: 0, garrafon10L: 0, litros: 0 });
+    setVentaForm({ garrafon20L: 0, garrafon10L: 0, litros: 0, fecha: format(new Date(), 'yyyy-MM-dd') });
   };
 
   return (
@@ -246,6 +250,18 @@ const Finanzas = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Fecha del Gasto
+                </label>
+                <input
+                  type="date"
+                  value={gastoForm.fecha}
+                  onChange={(e) => setGastoForm({ ...gastoForm, fecha: e.target.value })}
+                  className="input"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Categoría
                 </label>
                 <select
@@ -253,6 +269,7 @@ const Finanzas = () => {
                   onChange={(e) => setGastoForm({ ...gastoForm, categoria: e.target.value as any })}
                   className="input"
                 >
+                  <option value="servicios">Servicios</option>
                   <option value="insumos">Insumos</option>
                   <option value="mantenimiento">Mantenimiento</option>
                   <option value="inventario">Inventario</option>
@@ -284,6 +301,21 @@ const Finanzas = () => {
               <h3 className="text-2xl font-bold text-gray-800">Registrar Ventas Semanales</h3>
             </div>
             <form onSubmit={handleAgregarVenta} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Fecha de Registro
+                </label>
+                <input
+                  type="date"
+                  value={ventaForm.fecha}
+                  onChange={(e) => setVentaForm({ ...ventaForm, fecha: e.target.value })}
+                  className="input"
+                  required
+                />
+                <p className="text-sm text-gray-500 mt-1">
+                  Selecciona la fecha para la cual estás registrando las ventas
+                </p>
+              </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Garrafones 20L Vendidos

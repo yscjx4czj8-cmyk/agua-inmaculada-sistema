@@ -41,7 +41,6 @@ const VisitaSemanal = () => {
 
   const tareasUrgentes = tareasVisita.filter((t) => t.prioridad === 'urgente' && !t.completada);
   const tareasNormales = tareasVisita.filter((t) => t.prioridad === 'normal' && !t.completada);
-  const tareasBajas = tareasVisita.filter((t) => t.prioridad === 'baja' && !t.completada);
   const tareasCompletadas = tareasVisita.filter((t) => t.completada);
 
   const tiempoTotal = tareasVisita.reduce((acc, t) => acc + t.tiempoEstimado, 0);
@@ -57,270 +56,210 @@ const VisitaSemanal = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-800">Mi Visita Semanal</h1>
-          <p className="text-gray-600 mt-2">
-            Plan de tareas para tu visita del sábado
-          </p>
+    <div className="space-y-10 pb-12">
+      {/* Header Profile Section */}
+      <div className={`relative overflow-hidden rounded-[2.5rem] p-10 text-white shadow-2xl transition-all duration-700 ${modoVisita ? 'bg-gradient-to-br from-primary-900 via-primary-800 to-slate-900 shadow-primary-500/20' : 'bg-gradient-to-r from-slate-900 to-slate-800'}`}>
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
+          <div className="flex items-center gap-6">
+            <div className={`p-5 backdrop-blur-2xl rounded-3xl border border-white/20 shadow-inner ${modoVisita ? 'bg-primary-400/20' : 'bg-white/10'}`}>
+              <ClipboardCheck className={`w-10 h-10 ${modoVisita ? 'text-primary-300' : 'text-primary-400'}`} />
+            </div>
+            <div>
+              <h1 className="text-3xl font-extrabold tracking-tight">Focus Mode: Visita Semanal</h1>
+              <p className="text-slate-400 font-medium mt-1">
+                {modoVisita ? 'Ejecutando protocolo de mantenimiento en tiempo real.' : 'Organiza y ejecuta las tareas críticas de tu planta.'}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4">
+            {!modoVisita ? (
+              <button
+                onClick={iniciarVisita}
+                className="group relative px-8 py-4 bg-primary-500 hover:bg-primary-400 text-white rounded-[1.5rem] font-bold text-lg transition-all shadow-xl shadow-primary-500/30 overflow-hidden"
+              >
+                <div className="relative z-10 flex items-center gap-3">
+                  <Play className="w-6 h-6 fill-current" />
+                  Iniciar Visita Ahora
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-r from-primary-600 to-primary-400 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              </button>
+            ) : (
+              <button
+                onClick={finalizarVisita}
+                className="px-8 py-4 bg-rose-500/20 hover:bg-rose-500 text-rose-500 hover:text-white rounded-[1.5rem] font-bold text-lg border-2 border-rose-500/30 transition-all shadow-xl"
+              >
+                Finalizar Protocolo
+              </button>
+            )}
+          </div>
         </div>
-        {!modoVisita ? (
-          <button
-            onClick={iniciarVisita}
-            className="btn-primary flex items-center gap-2"
-          >
-            <Play className="w-5 h-5" />
-            Iniciar Visita
-          </button>
-        ) : (
-          <button
-            onClick={finalizarVisita}
-            className="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
-          >
-            Finalizar Visita
-          </button>
+
+        {/* Background Decorative Elements */}
+        <div className={`absolute top-0 right-0 w-96 h-96 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 transition-colors duration-1000 ${modoVisita ? 'bg-primary-400/30' : 'bg-primary-500/10'}`}></div>
+      </div>
+
+      {/* Visita Stats - Appearing only when active or summary */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        {[
+          { label: 'Urgente', value: tareasUrgentes.length, icon: AlertTriangle, color: 'text-rose-500', bg: 'bg-rose-50' },
+          { label: 'Programado', value: tareasNormales.length, icon: ClipboardCheck, color: 'text-amber-500', bg: 'bg-amber-50' },
+          { label: 'Completado', value: tareasCompletadas.length, icon: CheckCircle2, color: 'text-emerald-500', bg: 'bg-emerald-50' },
+          { label: 'Tiempo Plan', value: `${tiempoTotal}m`, icon: Clock, color: 'text-primary-500', bg: 'bg-primary-50' }
+        ].map((stat, idx) => (
+          <div key={idx} className="card rounded-[2rem] p-8 border-none ring-1 ring-slate-100/50 hover:shadow-xl transition-all group">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">{stat.label}</p>
+                <p className={`text-4xl font-black ${stat.color} tracking-tight`}>{stat.value}</p>
+              </div>
+              <div className={`p-4 ${stat.bg} rounded-2xl group-hover:scale-110 transition-transform`}>
+                <stat.icon className={`w-8 h-8 ${stat.color}`} />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Timer Display Frame */}
+      {modoVisita && (
+        <div className="relative group p-1 rounded-[3rem] bg-gradient-to-br from-primary-400 via-primary-500 to-indigo-600 shadow-2xl shadow-primary-500/20 transition-all">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-10 bg-slate-900 rounded-[2.9rem] p-10">
+            <div className="flex items-center gap-10">
+              <div className="relative">
+                <svg className="w-32 h-32 transform -rotate-90">
+                  <circle cx="64" cy="64" r="60" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-slate-800" />
+                  <circle cx="64" cy="64" r="60" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-primary-500 transition-all duration-1000" strokeDasharray={377} strokeDashoffset={377 - (377 * progreso) / 100} />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-2xl font-black text-white">{progreso}%</span>
+                </div>
+              </div>
+              <div>
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Tiempo en Planta</span>
+                <p className="text-6xl font-black text-white tracking-tighter mt-1 tabular-nums">{formatTiempo(tiempoTranscurrido)}</p>
+              </div>
+            </div>
+
+            <div className="hidden lg:block text-right">
+              <span className="text-[10px] font-black text-primary-400 uppercase tracking-[0.2em]">Eficiencia de Operación</span>
+              <div className="mt-4 space-y-2">
+                <div className="text-xs font-bold text-slate-300">Progreso Total de Tareas</div>
+                <div className="w-64 h-2 bg-slate-800 rounded-full overflow-hidden">
+                  <div className="h-full bg-primary-500 transition-all duration-500" style={{ width: `${progreso}%` }}></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Task List - Highly Visual Cards */}
+      <div className="grid grid-cols-1 gap-12">
+        {/* Urgente Section */}
+        {tareasUrgentes.length > 0 && (
+          <section className="space-y-6">
+            <div className="flex items-center gap-4">
+              <div className="w-1.5 h-8 bg-rose-500 rounded-full"></div>
+              <h3 className="text-2xl font-black text-slate-800 tracking-tight uppercase">⚠️ Prioridad Máxima ({tareasUrgentes.length})</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {tareasUrgentes.map((tarea) => (
+                <div
+                  key={tarea.id}
+                  className="group relative p-8 bg-white rounded-[2.5rem] ring-1 ring-slate-100 hover:ring-rose-200 transition-all duration-300 hover:shadow-2xl hover:shadow-rose-500/10"
+                >
+                  <div className="flex items-start gap-6">
+                    <div className="relative mt-1">
+                      <input
+                        type="checkbox"
+                        checked={tarea.completada}
+                        onChange={() => completarTarea(tarea.id)}
+                        className="peer w-8 h-8 opacity-0 absolute cursor-pointer z-10"
+                      />
+                      <div className="w-8 h-8 border-2 border-rose-200 rounded-xl peer-checked:bg-rose-500 peer-checked:border-rose-500 transition-all flex items-center justify-center">
+                        <div className="w-4 h-4 bg-white rounded-sm transform peer-checked:scale-100 scale-0 transition-transform"></div>
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-xl font-extrabold text-slate-800 mb-2 group-hover:text-rose-600 transition-colors uppercase tracking-tight">{tarea.titulo}</h4>
+                      <p className="text-sm font-medium text-slate-500 leading-relaxed mb-6">{tarea.descripcion}</p>
+
+                      <div className="flex items-center gap-4 pt-6 border-t border-slate-50">
+                        <div className="flex items-center gap-1.5 text-xs font-bold text-slate-400">
+                          <Clock className="w-3.5 h-3.5" />
+                          {tarea.tiempoEstimado} min
+                        </div>
+                        <div className="px-3 py-1 bg-rose-50 rounded-lg text-[9px] font-black text-rose-600 uppercase tracking-widest border border-rose-100">
+                          Crítico
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Programado Section */}
+        {tareasNormales.length > 0 && (
+          <section className="space-y-6">
+            <div className="flex items-center gap-4">
+              <div className="w-1.5 h-8 bg-amber-500 rounded-full"></div>
+              <h3 className="text-2xl font-black text-slate-800 tracking-tight uppercase text-amber-500">📋 Plan Programado ({tareasNormales.length})</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {tareasNormales.map((tarea) => (
+                <div
+                  key={tarea.id}
+                  className="group relative p-8 bg-white rounded-[2rem] ring-1 ring-slate-100 hover:ring-amber-200 transition-all duration-300"
+                >
+                  <div className="flex items-start gap-5">
+                    <input
+                      type="checkbox"
+                      checked={tarea.completada}
+                      onChange={() => completarTarea(tarea.id)}
+                      className="mt-1 w-6 h-6 rounded-lg text-amber-500 border-slate-200 ring-offset-0 focus:ring-amber-500"
+                    />
+                    <div>
+                      <h4 className="font-bold text-slate-800 mb-2 leading-tight uppercase tracking-tight">{tarea.titulo}</h4>
+                      <p className="text-xs font-medium text-slate-500 mb-6">{tarea.descripcion}</p>
+                      <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                        <Clock className="w-3 h-3" />
+                        Est. {tarea.tiempoEstimado} min
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Completadas Section */}
+        {tareasCompletadas.length > 0 && (
+          <section className="mt-10">
+            <div className="bg-slate-50 rounded-[3rem] p-10 border border-slate-200/50">
+              <h3 className="text-xl font-black text-emerald-600 mb-8 flex items-center gap-3 uppercase tracking-widest">
+                <CheckCircle2 className="w-6 h-6" />
+                Historial de Protocolo Completado ({tareasCompletadas.length})
+              </h3>
+              <div className="flex flex-wrap gap-4">
+                {tareasCompletadas.map((tarea) => (
+                  <div
+                    key={tarea.id}
+                    className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl shadow-sm border border-emerald-100"
+                  >
+                    <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                    <span className="text-sm font-extrabold text-slate-400 line-through">{tarea.titulo}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
         )}
       </div>
-
-      {/* Timer y Progreso */}
-      {modoVisita && (
-        <div className="card bg-gradient-to-r from-primary-500 to-pink-500 text-white">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm opacity-90">Visita en Progreso</p>
-              <p className="text-4xl font-bold mt-2">{formatTiempo(tiempoTranscurrido)}</p>
-            </div>
-            <div className="text-right">
-              <p className="text-sm opacity-90">Progreso General</p>
-              <p className="text-4xl font-bold mt-2">{progreso}%</p>
-            </div>
-          </div>
-          <div className="mt-4 bg-white bg-opacity-20 rounded-full h-3">
-            <div
-              className="bg-white rounded-full h-3 transition-all duration-500"
-              style={{ width: `${progreso}%` }}
-            ></div>
-          </div>
-        </div>
-      )}
-
-      {/* Resumen */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="card border-l-4 border-red-500">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Urgente</p>
-              <p className="text-3xl font-bold text-gray-800 mt-2">
-                {tareasUrgentes.length}
-              </p>
-            </div>
-            <AlertTriangle className="w-8 h-8 text-red-500" />
-          </div>
-        </div>
-
-        <div className="card border-l-4 border-orange-500">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Normal</p>
-              <p className="text-3xl font-bold text-gray-800 mt-2">
-                {tareasNormales.length}
-              </p>
-            </div>
-            <ClipboardCheck className="w-8 h-8 text-orange-500" />
-          </div>
-        </div>
-
-        <div className="card border-l-4 border-green-500">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Completadas</p>
-              <p className="text-3xl font-bold text-gray-800 mt-2">
-                {tareasCompletadas.length}
-              </p>
-            </div>
-            <CheckCircle2 className="w-8 h-8 text-green-500" />
-          </div>
-        </div>
-
-        <div className="card border-l-4 border-blue-500">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Tiempo Total</p>
-              <p className="text-3xl font-bold text-gray-800 mt-2">
-                {tiempoTotal}m
-              </p>
-            </div>
-            <Clock className="w-8 h-8 text-blue-500" />
-          </div>
-        </div>
-      </div>
-
-      {/* Lista de Tareas */}
-      {tareasUrgentes.length > 0 && (
-        <div className="card">
-          <h3 className="text-xl font-bold text-red-600 mb-4 flex items-center gap-2">
-            <AlertTriangle className="w-6 h-6" />
-            ⚠️ URGENTE ({tareasUrgentes.length})
-          </h3>
-          <div className="space-y-4">
-            {tareasUrgentes.map((tarea) => (
-              <div
-                key={tarea.id}
-                className="p-4 border-2 border-red-200 rounded-lg bg-red-50"
-              >
-                <div className="flex items-start gap-4">
-                  <input
-                    type="checkbox"
-                    checked={tarea.completada}
-                    onChange={() => completarTarea(tarea.id)}
-                    className="mt-1 w-6 h-6 text-primary-600 rounded"
-                  />
-                  <div className="flex-1">
-                    <h4 className="font-bold text-gray-800">{tarea.titulo}</h4>
-                    <p className="text-sm text-gray-600 mt-1">{tarea.descripcion}</p>
-                    <div className="flex items-center gap-4 mt-3">
-                      <span className="text-sm text-gray-500 flex items-center gap-1">
-                        <Clock className="w-4 h-4" />
-                        {tarea.tiempoEstimado} minutos
-                      </span>
-                      <span className="badge-danger">URGENTE</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {tareasNormales.length > 0 && (
-        <div className="card">
-          <h3 className="text-xl font-bold text-gray-800 mb-4">
-            📋 Programado ({tareasNormales.length})
-          </h3>
-          <div className="space-y-4">
-            {tareasNormales.map((tarea) => (
-              <div
-                key={tarea.id}
-                className="p-4 border border-gray-200 rounded-lg hover:border-primary-300 transition-colors"
-              >
-                <div className="flex items-start gap-4">
-                  <input
-                    type="checkbox"
-                    checked={tarea.completada}
-                    onChange={() => completarTarea(tarea.id)}
-                    className="mt-1 w-6 h-6 text-primary-600 rounded"
-                  />
-                  <div className="flex-1">
-                    <h4 className="font-bold text-gray-800">{tarea.titulo}</h4>
-                    <p className="text-sm text-gray-600 mt-1">{tarea.descripcion}</p>
-                    <div className="flex items-center gap-4 mt-3">
-                      <span className="text-sm text-gray-500 flex items-center gap-1">
-                        <Clock className="w-4 h-4" />
-                        {tarea.tiempoEstimado} minutos
-                      </span>
-                      <span className="badge-warning">NORMAL</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {tareasBajas.length > 0 && (
-        <div className="card">
-          <h3 className="text-xl font-bold text-gray-800 mb-4">
-            📌 Opcional ({tareasBajas.length})
-          </h3>
-          <div className="space-y-4">
-            {tareasBajas.map((tarea) => (
-              <div
-                key={tarea.id}
-                className="p-4 border border-gray-200 rounded-lg"
-              >
-                <div className="flex items-start gap-4">
-                  <input
-                    type="checkbox"
-                    checked={tarea.completada}
-                    onChange={() => completarTarea(tarea.id)}
-                    className="mt-1 w-6 h-6 text-primary-600 rounded"
-                  />
-                  <div className="flex-1">
-                    <h4 className="font-bold text-gray-800">{tarea.titulo}</h4>
-                    <p className="text-sm text-gray-600 mt-1">{tarea.descripcion}</p>
-                    <div className="flex items-center gap-4 mt-3">
-                      <span className="text-sm text-gray-500 flex items-center gap-1">
-                        <Clock className="w-4 h-4" />
-                        {tarea.tiempoEstimado} minutos
-                      </span>
-                      <span className="text-xs px-2 py-1 rounded bg-gray-100 text-gray-700">
-                        BAJA PRIORIDAD
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Tareas Completadas */}
-      {tareasCompletadas.length > 0 && (
-        <div className="card bg-green-50 border border-green-200">
-          <h3 className="text-xl font-bold text-green-700 mb-4 flex items-center gap-2">
-            <CheckCircle2 className="w-6 h-6" />
-            ✅ Completadas ({tareasCompletadas.length})
-          </h3>
-          <div className="space-y-3">
-            {tareasCompletadas.map((tarea) => (
-              <div
-                key={tarea.id}
-                className="p-4 bg-white rounded-lg border border-green-200"
-              >
-                <div className="flex items-start gap-4">
-                  <CheckCircle2 className="w-6 h-6 text-green-500 flex-shrink-0 mt-1" />
-                  <div className="flex-1">
-                    <h4 className="font-bold text-gray-800 line-through">{tarea.titulo}</h4>
-                    <p className="text-sm text-gray-600 mt-1">{tarea.descripcion}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Resumen Final */}
-      {modoVisita && (
-        <div className="card bg-gradient-to-r from-gray-800 to-gray-900 text-white">
-          <h3 className="text-xl font-bold mb-4">📊 Resumen de la Visita</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div>
-              <p className="text-sm opacity-75">Tiempo Transcurrido</p>
-              <p className="text-2xl font-bold mt-1">{formatTiempo(tiempoTranscurrido)}</p>
-            </div>
-            <div>
-              <p className="text-sm opacity-75">Tiempo Estimado Total</p>
-              <p className="text-2xl font-bold mt-1">{tiempoTotal} min</p>
-            </div>
-            <div>
-              <p className="text-sm opacity-75">Tareas Completadas</p>
-              <p className="text-2xl font-bold mt-1">
-                {tareasCompletadas.length}/{tareasVisita.length}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm opacity-75">Progreso</p>
-              <p className="text-2xl font-bold mt-1">{progreso}%</p>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 import { manualCompleto } from '../data/manualCompleto';
+import { differenceInDays, isBefore } from 'date-fns';
 import type {
   CalidadRegistro,
   Mantenimiento,
@@ -74,7 +75,7 @@ const mantenimientosIniciales: Mantenimiento[] = [
     id: '1',
     nombre: 'Medición de Cloro y pH',
     descripcion: 'Medición de parámetros de calidad del agua',
-    frecuencia: 'diaria',
+    frecuencia: 'semanal',
     categoria: 'medicion',
     tiempoEstimado: 10,
     materialesNecesarios: ['Kit de medición', 'Solución amarilla', 'Solución roja'],
@@ -447,13 +448,66 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   generarPlanVisita: () => {
-    const tareas: TareaVisita[] = [
-      { id: '1', tipo: 'medicion', titulo: 'Medición de Calidad', descripcion: 'Medir cloro, SDT y dureza', prioridad: 'urgente', tiempoEstimado: 15, completada: false, orden: 1 },
-      { id: '2', mantenimientoId: '2', tipo: 'mantenimiento', titulo: 'Retrolavado Filtro Dual', descripcion: 'Retrolavado semanal de arena y carbón', prioridad: 'urgente', tiempoEstimado: 10, completada: false, orden: 2 },
-      { id: '3', mantenimientoId: '4', tipo: 'mantenimiento', titulo: 'Limpieza Filtros Pulidores', descripcion: 'Lavar filtros con cloro', prioridad: 'normal', tiempoEstimado: 30, completada: false, orden: 3 },
-      { id: '4', tipo: 'registro', titulo: 'Registrar Ventas', descripcion: 'Registrar ventas de la semana', prioridad: 'normal', tiempoEstimado: 5, completada: false, orden: 4 },
-      { id: '5', tipo: 'revision', titulo: 'Verificar Sal', descripcion: 'Revisar tanque de salmuera', prioridad: 'baja', tiempoEstimado: 5, completada: false, orden: 5 },
-    ];
+    const { mantenimientos, registrosMantenimiento, registrosCalidad } = get();
+    const hoy = new Date();
+    const tareas: TareaVisita[] = [];
+    let orden = 1;
+
+    // 1. Tarea de Medición de Calidad (siempre se sugiere en la visita semanal)
+    const ultimaMedicion = registrosCalidad[0];
+    const necesitaMedicion = !ultimaMedicion ||
+      differenceInDays(hoy, ultimaMedicion.fecha) >= 6;
+
+    if (necesitaMedicion) {
+      tareas.push({
+        id: 'calidad-' + hoy.getTime(),
+        tipo: 'medicion',
+        titulo: 'Medición de Calidad',
+        descripcion: 'Medir cloro, SDT y dureza (Recomendado semanalmente)',
+        prioridad: 'urgente',
+        tiempoEstimado: 15,
+        completada: false,
+        orden: orden++,
+      });
+    }
+
+    // 2. Mantenimientos programados o vencidos
+    mantenimientos.forEach((m) => {
+      const ultimo = registrosMantenimiento.find((r) => r.mantenimientoId === m.id);
+      let proxima = hoy;
+
+      if (ultimo) {
+        proxima = ultimo.proximoMantenimiento;
+      }
+
+      // Si el mantenimiento está vencido o toca en los próximos 2 días
+      if (isBefore(proxima, hoy) || differenceInDays(proxima, hoy) <= 2) {
+        tareas.push({
+          id: `maint-${m.id}-${hoy.getTime()}`,
+          mantenimientoId: m.id,
+          tipo: 'mantenimiento',
+          titulo: m.nombre,
+          descripcion: m.descripcion,
+          prioridad: m.frecuencia === 'diaria' || m.frecuencia === 'semanal' ? 'urgente' : 'normal',
+          tiempoEstimado: m.tiempoEstimado,
+          completada: false,
+          orden: orden++,
+        });
+      }
+    });
+
+    // 3. Tarea de Registro de Ventas (obligatorio en visita semanal)
+    tareas.push({
+      id: 'ventas-' + hoy.getTime(),
+      tipo: 'registro',
+      titulo: 'Cerrar Ventas de la Semana',
+      descripcion: 'Registrar el total de garrafones vendidos y recolectar ingresos',
+      prioridad: 'urgente',
+      tiempoEstimado: 10,
+      completada: false,
+      orden: orden++,
+    });
+
     set({ tareasVisita: tareas });
   },
 
