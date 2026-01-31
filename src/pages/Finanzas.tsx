@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useStore } from '../store/useStore';
-import { DollarSign, TrendingUp, TrendingDown, Plus, Upload } from 'lucide-react';
+import { DollarSign, TrendingUp, TrendingDown, Plus, Upload, Calendar, Target, ArrowUpRight, ArrowDownRight, Trash2, Receipt } from 'lucide-react';
 import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -74,8 +74,11 @@ const Finanzas = () => {
 
     try {
       const fechaSeleccionada = new Date(ventaForm.fecha);
-      const inicioSemana = new Date(fechaSeleccionada);
-      inicioSemana.setDate(fechaSeleccionada.getDate() - fechaSeleccionada.getDay());
+      // Ajustar a medianoche local para consistencia
+      const localDate = new Date(fechaSeleccionada.getTime() + (fechaSeleccionada.getTimezoneOffset() * 60000));
+
+      const inicioSemana = new Date(localDate);
+      inicioSemana.setDate(localDate.getDate() - localDate.getDay());
       const finSemana = new Date(inicioSemana);
       finSemana.setDate(inicioSemana.getDate() + 6);
 
@@ -98,11 +101,30 @@ const Finanzas = () => {
 
       setShowVentaForm(false);
       setVentaForm({ garrafon20L: 0, garrafon10L: 0, litros: 0, fecha: format(new Date(), 'yyyy-MM-dd') });
-      alert('¡Venta registrada con éxito!');
     } catch (err: any) {
-      setSubmitError(err.message || 'Error al guardar la venta. Verifica tu conexión o el servidor.');
+      setSubmitError(err.message || 'Error al guardar la venta.');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleEliminarVenta = async (id: string) => {
+    if (window.confirm('¿Estás seguro de que deseas eliminar este registro de venta?')) {
+      try {
+        await useStore.getState().eliminarVenta(id);
+      } catch (err) {
+        alert('Error al eliminar la venta');
+      }
+    }
+  };
+
+  const handleEliminarGasto = async (id: string) => {
+    if (window.confirm('¿Estás seguro de que deseas eliminar este gasto?')) {
+      try {
+        await useStore.getState().eliminarGasto(id);
+      } catch (err) {
+        alert('Error al eliminar el gasto');
+      }
     }
   };
 
@@ -226,6 +248,136 @@ const Finanzas = () => {
           <p className="text-lg font-bold text-gray-800">
             Total Gastos Fijos: ${gastosFijosMes.toLocaleString()}
           </p>
+        </div>
+      </div>
+
+      {/* Bitácora de Ventas y Gastos */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <div className="glass-card p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+              <TrendingUp className="text-blue-600" />
+              Bitácora de Ventas Diarias
+            </h2>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="text-left border-b border-slate-200">
+                  <th className="pb-3 font-semibold text-slate-600">Fecha</th>
+                  <th className="pb-3 font-semibold text-slate-600">Productos</th>
+                  <th className="pb-3 font-semibold text-slate-600 text-right">Monto</th>
+                  <th className="pb-3 font-semibold text-slate-600 text-center">Acciones</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {ventas.length > 0 ? (
+                  ventas.map((v) => (
+                    <tr key={v.id} className="hover:bg-slate-50/50 transition-colors">
+                      <td className="py-4 text-slate-700 font-medium">
+                        {format(v.semanaInicio, 'dd/MM/yyyy')}
+                      </td>
+                      <td className="py-4">
+                        <div className="flex flex-col gap-1">
+                          {v.productosVendidos.garrafon20L > 0 && (
+                            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full w-fit">
+                              {v.productosVendidos.garrafon20L} x 20L
+                            </span>
+                          )}
+                          {v.productosVendidos.garrafon10L > 0 && (
+                            <span className="text-xs bg-cyan-100 text-cyan-700 px-2 py-0.5 rounded-full w-fit">
+                              {v.productosVendidos.garrafon10L} x 10L
+                            </span>
+                          )}
+                          {v.productosVendidos.litro > 0 && (
+                            <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full w-fit">
+                              {v.productosVendidos.litro} Litros
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-4 text-right font-bold text-blue-600">
+                        ${v.ingresoTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      </td>
+                      <td className="py-4 text-center">
+                        <button
+                          onClick={() => handleEliminarVenta(v.id)}
+                          className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                          title="Eliminar registro"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={4} className="py-8 text-center text-slate-400 italic">
+                      No hay ventas registradas
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="glass-card p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+              <Receipt className="text-red-600" />
+              Histórico de Gastos
+            </h2>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="text-left border-b border-slate-200">
+                  <th className="pb-3 font-semibold text-slate-600">Concepto</th>
+                  <th className="pb-3 font-semibold text-slate-600">Categoría</th>
+                  <th className="pb-3 font-semibold text-slate-600 text-right">Monto</th>
+                  <th className="pb-3 font-semibold text-slate-600 text-center">Acciones</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {gastos.length > 0 ? (
+                  gastos.map((g) => (
+                    <tr key={g.id} className="hover:bg-slate-50/50 transition-colors">
+                      <td className="py-4">
+                        <p className="font-medium text-slate-800">{g.concepto}</p>
+                        <p className="text-xs text-slate-500">{format(g.fecha, 'dd/MM/yyyy')}</p>
+                      </td>
+                      <td className="py-4">
+                        <span className={`text-xs px-2 py-1 rounded-full ${g.categoria === 'mantenimiento' ? 'bg-amber-100 text-amber-700' :
+                          g.categoria === 'insumos' ? 'bg-green-100 text-green-700' :
+                            'bg-slate-100 text-slate-700'
+                          }`}>
+                          {g.categoria}
+                        </span>
+                      </td>
+                      <td className="py-4 text-right font-bold text-red-600">
+                        -${g.monto.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      </td>
+                      <td className="py-4 text-center">
+                        <button
+                          onClick={() => handleEliminarGasto(g.id)}
+                          className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={4} className="py-8 text-center text-slate-400 italic">
+                      No hay gastos registrados
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 

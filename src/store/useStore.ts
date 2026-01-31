@@ -36,12 +36,14 @@ interface AppState {
   ventas: VentaSemanal[];
   fetchVentas: () => Promise<void>;
   agregarVenta: (venta: Omit<VentaSemanal, 'id'>) => Promise<void>;
+  eliminarVenta: (id: string) => Promise<void>;
 
   // Gastos
   gastos: Gasto[];
   gastosFijos: GastoFijo[];
   fetchGastos: () => Promise<void>;
   agregarGasto: (gasto: Omit<Gasto, 'id'>) => Promise<void>;
+  eliminarGasto: (id: string) => Promise<void>;
   fetchGastosFijos: () => Promise<void>;
   actualizarGastoFijo: (id: string, updates: Partial<GastoFijo>) => Promise<void>;
   agregarGastoFijo: (gasto: Omit<GastoFijo, 'id'>) => Promise<void>;
@@ -324,6 +326,30 @@ export const useStore = create<AppState>((set, get) => ({
     }));
   },
 
+  eliminarVenta: async (id) => {
+    set({ loading: true, error: null });
+    try {
+      const { error } = await supabase
+        .from('ventas')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      set((state) => ({
+        ventas: state.ventas.filter((v) => v.id !== id),
+        loading: false
+      }));
+    } catch (err: any) {
+      console.error('Error al eliminar venta:', err);
+      set({
+        error: err.message || 'Error al eliminar la venta',
+        loading: false
+      });
+      throw err;
+    }
+  },
+
   fetchVentas: async () => {
     const { data, error } = await supabase
       .from('ventas')
@@ -434,6 +460,30 @@ export const useStore = create<AppState>((set, get) => ({
       console.error('Error al agregar gasto:', err);
       set({
         error: err.message || 'Error al guardar el gasto',
+        loading: false
+      });
+      throw err;
+    }
+  },
+
+  eliminarGasto: async (id) => {
+    set({ loading: true, error: null });
+    try {
+      const { error } = await supabase
+        .from('gastos')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      set((state) => ({
+        gastos: state.gastos.filter((g) => g.id !== id),
+        loading: false
+      }));
+    } catch (err: any) {
+      console.error('Error al eliminar gasto:', err);
+      set({
+        error: err.message || 'Error al eliminar el gasto',
         loading: false
       });
       throw err;
