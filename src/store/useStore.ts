@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 import { manualCompleto } from '../data/manualCompleto';
 import { differenceInDays, isBefore } from 'date-fns';
-import type {
+import {
   CalidadRegistro,
   Mantenimiento,
   RegistroMantenimiento,
@@ -14,6 +14,16 @@ import type {
   ConfiguracionPrecios,
   CapituloManual,
 } from '../types';
+import { format } from 'date-fns';
+
+// Helper to handle "YYYY-MM-DD" strings from database as Local Dates
+const parseLocalDate = (dateStr: string) => {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  return new Date(year, month - 1, day);
+};
+
+// Helper to format Date as "YYYY-MM-DD" in Local Time
+const formatLocalISO = (date: Date) => format(date, 'yyyy-MM-dd');
 
 interface AppState {
   // Estado de carga
@@ -377,8 +387,8 @@ export const useStore = create<AppState>((set, get) => ({
       const { data, error } = await supabase
         .from('ventas')
         .insert([{
-          semana_inicio: venta.semanaInicio.toISOString().split('T')[0],
-          semana_fin: venta.semanaFin.toISOString().split('T')[0],
+          semana_inicio: formatLocalISO(venta.semanaInicio),
+          semana_fin: formatLocalISO(venta.semanaFin),
           garrafones_vendidos: venta.productosVendidos.garrafon20L + venta.productosVendidos.garrafon10L,
           garrafon_20l: venta.productosVendidos.garrafon20L,
           garrafon_10l: venta.productosVendidos.garrafon10L,
@@ -393,8 +403,8 @@ export const useStore = create<AppState>((set, get) => ({
       if (data) {
         const nueva = {
           ...data[0],
-          semanaInicio: new Date(data[0].semana_inicio),
-          semanaFin: new Date(data[0].semana_fin),
+          semanaInicio: parseLocalDate(data[0].semana_inicio),
+          semanaFin: parseLocalDate(data[0].semana_fin),
           productosVendidos: {
             garrafon20L: data[0].garrafon_20l || 0,
             garrafon10L: data[0].garrafon_10l || 0,
@@ -425,7 +435,7 @@ export const useStore = create<AppState>((set, get) => ({
         .select('*')
         .order('fecha', { ascending: false });
       if (error) throw error;
-      set({ gastos: data.map(g => ({ ...g, fecha: new Date(g.fecha) })) });
+      set({ gastos: data.map(g => ({ ...g, fecha: parseLocalDate(g.fecha) })) });
     } catch (err: any) {
       console.error('Error fetching expenses:', err);
       set({ error: 'Error al cargar los gastos' });
@@ -438,7 +448,7 @@ export const useStore = create<AppState>((set, get) => ({
       const { data, error } = await supabase
         .from('gastos')
         .insert([{
-          fecha: gasto.fecha.toISOString().split('T')[0],
+          fecha: formatLocalISO(gasto.fecha),
           concepto: gasto.concepto,
           monto: gasto.monto,
           categoria: gasto.categoria,

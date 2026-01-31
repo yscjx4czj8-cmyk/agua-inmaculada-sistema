@@ -13,6 +13,12 @@ import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tool
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
+// Helper to parse "YYYY-MM-DD" from form as Local Date
+const parseFormDate = (dateStr: string) => {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  return new Date(year, month - 1, day);
+};
+
 const Finanzas = () => {
   const [showGastoForm, setShowGastoForm] = useState(false);
   const [showVentaForm, setShowVentaForm] = useState(false);
@@ -48,11 +54,18 @@ const Finanzas = () => {
   const utilidadMes = ingresosMes - gastosTotalesMes;
   const margenUtilidad = ((utilidadMes / ingresosMes) * 100).toFixed(1);
 
-  // Datos para gráficas
-  const ventasData = ventas.slice(-4).map((v) => ({
-    semana: format(v.semanaInicio, 'dd/MM', { locale: es }),
-    ingresos: v.ingresoTotal,
-  }));
+  // Datos para gráficas (Agrupar por semana para la tendencia)
+  const ventasPorSemana = ventas.reduce((acc: any, v) => {
+    const inicio = new Date(v.semanaInicio);
+    inicio.setDate(inicio.getDate() - inicio.getDay()); // Normalizar a domingo
+    const semanaKey = format(inicio, 'dd/MM');
+    acc[semanaKey] = (acc[semanaKey] || 0) + v.ingresoTotal;
+    return acc;
+  }, {});
+
+  const ventasData = Object.entries(ventasPorSemana)
+    .map(([semana, ingresos]) => ({ semana, ingresos }))
+    .slice(-4);
 
   const gastosData = [
     { name: 'Servicios', value: gastosFijosMes, color: '#3b82f6' },
@@ -68,7 +81,7 @@ const Finanzas = () => {
       concepto: gastoForm.concepto,
       monto: gastoForm.monto,
       categoria: gastoForm.categoria,
-      fecha: new Date(gastoForm.fecha),
+      fecha: parseFormDate(gastoForm.fecha),
       recurrente: false,
     });
     setShowGastoForm(false);
@@ -81,14 +94,10 @@ const Finanzas = () => {
     setSubmitError(null);
 
     try {
-      const fechaSeleccionada = new Date(ventaForm.fecha);
-      // Ajustar a medianoche local para consistencia
-      const localDate = new Date(fechaSeleccionada.getTime() + (fechaSeleccionada.getTimezoneOffset() * 60000));
+      const localDate = parseFormDate(ventaForm.fecha);
 
-      const inicioSemana = new Date(localDate);
-      inicioSemana.setDate(localDate.getDate() - localDate.getDay());
-      const finSemana = new Date(inicioSemana);
-      finSemana.setDate(inicioSemana.getDate() + 6);
+      const inicioSemana = localDate;
+      const finSemana = localDate; // Registration is now daily per user's Bitácora request
 
       const ingresoTotal =
         (ventaForm.garrafon20L * precios.garrafon20L.precio) +
@@ -357,8 +366,8 @@ const Finanzas = () => {
                       </td>
                       <td className="py-4">
                         <span className={`text-xs px-2 py-1 rounded-full ${g.categoria === 'mantenimiento' ? 'bg-amber-100 text-amber-700' :
-                            g.categoria === 'insumos' ? 'bg-green-100 text-green-700' :
-                              'bg-slate-100 text-slate-700'
+                          g.categoria === 'insumos' ? 'bg-green-100 text-green-700' :
+                            'bg-slate-100 text-slate-700'
                           }`}>
                           {g.categoria}
                         </span>
