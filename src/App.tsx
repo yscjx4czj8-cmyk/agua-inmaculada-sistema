@@ -10,6 +10,7 @@ import Finanzas from './pages/Finanzas';
 import Manual from './pages/Manual';
 import Reportes from './pages/Reportes';
 import VisitaSemanal from './pages/VisitaSemanal';
+import Configuracion from './pages/Configuracion';
 
 function App() {
   const fetchInitialData = useStore((state) => state.fetchInitialData);
@@ -31,6 +32,7 @@ function App() {
           <Route path="manual" element={<Manual />} />
           <Route path="reportes" element={<Reportes />} />
           <Route path="visita" element={<VisitaSemanal />} />
+          <Route path="configuracion" element={<Configuracion />} />
         </Route>
       </Routes>
     </BrowserRouter>

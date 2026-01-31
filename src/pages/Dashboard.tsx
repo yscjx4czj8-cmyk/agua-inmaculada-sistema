@@ -29,7 +29,12 @@ const Dashboard = () => {
   const tareasVisita = useStore((state) => state.tareasVisita);
 
   // Calcular estadísticas
-  const ventasEstaSemanaSemana = ventas[ventas.length - 1] || { garrafonesVendidos: 0, ingresoTotal: 0 };
+  const ventaActual = ventas[ventas.length - 1];
+  const totalUnidadesActual = ventaActual
+    ? (ventaActual.productosVendidos.garrafon20L + ventaActual.productosVendidos.garrafon10L)
+    : 0;
+  const ingresoActual = ventaActual?.ingresoTotal || 0;
+
   const ultimaMedicion = registrosCalidad[registrosCalidad.length - 1];
   const alertasActivas = notificaciones.filter((n) => n.tipo === 'alerta' && !n.leida).length;
   const tareasPendientes = tareasVisita.filter((t) => !t.completada).length;
@@ -37,7 +42,8 @@ const Dashboard = () => {
   // Datos para gráficas
   const ventasData = ventas.slice(-7).map((v) => ({
     semana: format(v.semanaInicio, 'dd/MM', { locale: es }),
-    ventas: v.garrafonesVendidos,
+    ventas: v.productosVendidos.garrafon20L + v.productosVendidos.garrafon10L,
+    litros: v.productosVendidos.litro,
     ingresos: v.ingresoTotal,
   }));
 
@@ -52,13 +58,13 @@ const Dashboard = () => {
   const stats = [
     {
       label: 'Ventas Semanales',
-      value: ventasEstaSemanaSemana.garrafonesVendidos.toString(),
-      subtext: 'Garrafones de 19L',
-      detail: `$${ventasEstaSemanaSemana.ingresoTotal.toLocaleString('es-MX')}`,
+      value: totalUnidadesActual.toString(),
+      subtext: 'Total Garrafones',
+      detail: `$${ingresoActual.toLocaleString('es-MX')}`,
       icon: TrendingUp,
       gradient: 'from-emerald-400 to-emerald-600',
       shadow: 'shadow-emerald-500/20',
-      trend: '+12.5%',
+      trend: ventaActual ? '+12.5%' : '0%',
     },
     {
       label: 'Calidad del Agua',
@@ -159,7 +165,7 @@ const Dashboard = () => {
           <div className="flex items-center justify-between mb-8">
             <div>
               <h3 className="text-xl font-bold text-slate-800 tracking-tight text-xl">Monitor de Producción</h3>
-              <p className="text-sm font-medium text-slate-400 mt-1">Comparativa de garrafones vendidos</p>
+              <p className="text-sm font-medium text-slate-400 mt-1">Comparativa de productos vendidos (20L + 10L)</p>
             </div>
             <div className="flex gap-2">
               <div className="w-3 h-3 bg-primary-500 rounded-full"></div>

@@ -11,6 +11,7 @@ import {
   Bell,
   Menu,
   X,
+  Settings,
 } from 'lucide-react';
 import { useState } from 'react';
 import { useStore } from '../store/useStore';
@@ -27,6 +28,7 @@ const Layout = () => {
     { to: '/mantenimientos', icon: Wrench, label: 'Mantenimientos' },
     { to: '/agenda', icon: Calendar, label: 'Agenda de Visitas' },
     { to: '/finanzas', icon: DollarSign, label: 'Gestión Financiera' },
+    { to: '/configuracion', icon: Settings, label: 'Configuración' },
     { to: '/manual', icon: BookOpen, label: 'Manual Técnico' },
     { to: '/reportes', icon: FileText, label: 'Centro de Reportes' },
   ];

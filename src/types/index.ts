@@ -42,11 +42,17 @@ export interface RegistroMantenimiento {
   duracion?: number; // minutos reales
 }
 
+export interface ProductoVendido {
+  garrafon20L: number;
+  garrafon10L: number;
+  litro: number;
+}
+
 export interface VentaSemanal {
   id: string;
   semanaInicio: Date;
   semanaFin: Date;
-  garrafonesVendidos: number;
+  productosVendidos: ProductoVendido;
   ingresoTotal: number;
   promedioDiario: number;
 }
@@ -66,6 +72,8 @@ export interface GastoFijo {
   concepto: string;
   monto: number;
   categoria: 'servicios';
+  fechaPago?: Date;
+  diaPago?: number; // Día del mes que se paga (1-31)
 }
 
 export interface TareaVisita {
@@ -103,10 +111,26 @@ export interface DashboardStats {
   estadoGeneral: 'optimo' | 'atencion' | 'critico';
 }
 
+export interface ProductoConfig {
+  id: string;
+  nombre: string;
+  precio: number;
+  costo: number;
+  unidad: 'unidad' | 'litro';
+  activo: boolean;
+}
+
 export interface ConfiguracionPrecios {
-  garrafon20L: number;
-  garrafon10L: number;
-  litro: number;
+  garrafon20L: ProductoConfig;
+  garrafon10L: ProductoConfig;
+  litro: ProductoConfig;
+}
+
+export interface PasoManual {
+  numero: number;
+  descripcion: string;
+  imagen?: string;
+  advertencia?: string;
 }
 
 export interface CapituloManual {
@@ -114,10 +138,15 @@ export interface CapituloManual {
   titulo: string;
   pagina: number;
   contenido: string;
+  descripcion?: string;
+  pasos?: PasoManual[];
+  advertencias?: string[];
   subsecciones?: {
     titulo: string;
     contenido: string;
   }[];
   imagenes?: string[];
   tags: string[];
+  frecuencia?: string;
+  importante?: string;
 }

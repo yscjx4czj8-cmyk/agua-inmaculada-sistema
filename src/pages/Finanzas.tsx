@@ -23,7 +23,9 @@ const Finanzas = () => {
   });
 
   const [ventaForm, setVentaForm] = useState({
-    garrafones: 0,
+    garrafon20L: 0,
+    garrafon10L: 0,
+    litros: 0,
   });
 
   // Calcular totales del mes
@@ -67,15 +69,24 @@ const Finanzas = () => {
     const finSemana = new Date(inicioSemana);
     finSemana.setDate(inicioSemana.getDate() + 6);
 
+    const ingresoTotal =
+      (ventaForm.garrafon20L * precios.garrafon20L.precio) +
+      (ventaForm.garrafon10L * precios.garrafon10L.precio) +
+      (ventaForm.litros * precios.litro.precio);
+
     agregarVenta({
       semanaInicio: inicioSemana,
       semanaFin: finSemana,
-      garrafonesVendidos: ventaForm.garrafones,
-      ingresoTotal: ventaForm.garrafones * precios.garrafon20L,
-      promedioDiario: ventaForm.garrafones / 7,
+      productosVendidos: {
+        garrafon20L: ventaForm.garrafon20L,
+        garrafon10L: ventaForm.garrafon10L,
+        litro: ventaForm.litros,
+      },
+      ingresoTotal,
+      promedioDiario: ingresoTotal / 7,
     });
     setShowVentaForm(false);
-    setVentaForm({ garrafones: 0 });
+    setVentaForm({ garrafon20L: 0, garrafon10L: 0, litros: 0 });
   };
 
   return (
@@ -275,17 +286,58 @@ const Finanzas = () => {
             <form onSubmit={handleAgregarVenta} className="p-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Garrafones Vendidos
+                  Garrafones 20L Vendidos
                 </label>
                 <input
                   type="number"
-                  value={ventaForm.garrafones}
-                  onChange={(e) => setVentaForm({ garrafones: parseInt(e.target.value) })}
+                  value={ventaForm.garrafon20L}
+                  onChange={(e) => setVentaForm({ ...ventaForm, garrafon20L: parseInt(e.target.value) || 0 })}
                   className="input"
-                  required
+                  min="0"
                 />
                 <p className="text-sm text-gray-500 mt-1">
-                  Ingreso estimado: ${(ventaForm.garrafones * precios.garrafon20L).toLocaleString()}
+                  Precio unitario: ${precios.garrafon20L.precio.toFixed(2)}
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Garrafones 10L (Medios) Vendidos
+                </label>
+                <input
+                  type="number"
+                  value={ventaForm.garrafon10L}
+                  onChange={(e) => setVentaForm({ ...ventaForm, garrafon10L: parseInt(e.target.value) || 0 })}
+                  className="input"
+                  min="0"
+                />
+                <p className="text-sm text-gray-500 mt-1">
+                  Precio unitario: ${precios.garrafon10L.precio.toFixed(2)}
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Litros Vendidos
+                </label>
+                <input
+                  type="number"
+                  value={ventaForm.litros}
+                  onChange={(e) => setVentaForm({ ...ventaForm, litros: parseInt(e.target.value) || 0 })}
+                  className="input"
+                  min="0"
+                />
+                <p className="text-sm text-gray-500 mt-1">
+                  Precio por litro: ${precios.litro.precio.toFixed(2)}
+                </p>
+              </div>
+
+              <div className="pt-4 border-t border-gray-200">
+                <p className="text-sm text-gray-600">Ingreso Total Estimado:</p>
+                <p className="text-3xl font-bold text-green-600 mt-2">
+                  ${((ventaForm.garrafon20L * precios.garrafon20L.precio) +
+                     (ventaForm.garrafon10L * precios.garrafon10L.precio) +
+                     (ventaForm.litros * precios.litro.precio)).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                 </p>
               </div>
               <div className="flex gap-3">

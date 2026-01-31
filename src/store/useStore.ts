@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
+import { manualCompleto } from '../data/manualCompleto';
 import type {
   CalidadRegistro,
   Mantenimiento,
@@ -40,7 +41,10 @@ interface AppState {
   gastosFijos: GastoFijo[];
   fetchGastos: () => Promise<void>;
   agregarGasto: (gasto: Omit<Gasto, 'id'>) => Promise<void>;
-  actualizarGastoFijo: (id: string, monto: number) => void;
+  fetchGastosFijos: () => Promise<void>;
+  actualizarGastoFijo: (id: string, updates: Partial<GastoFijo>) => Promise<void>;
+  agregarGastoFijo: (gasto: Omit<GastoFijo, 'id'>) => Promise<void>;
+  eliminarGastoFijo: (id: string) => Promise<void>;
 
   // Visita Semanal
   tareasVisita: TareaVisita[];
@@ -55,7 +59,8 @@ interface AppState {
 
   // Configuración
   precios: ConfiguracionPrecios;
-  actualizarPrecios: (precios: Partial<ConfiguracionPrecios>) => void;
+  fetchPrecios: () => Promise<void>;
+  actualizarProducto: (productoId: keyof ConfiguracionPrecios, updates: Partial<import('../types').ProductoConfig>) => Promise<void>;
 
   // Manual
   manual: CapituloManual[];
@@ -163,41 +168,35 @@ export const useStore = create<AppState>((set, get) => ({
   gastos: [],
   notificaciones: [],
   mantenimientos: mantenimientosIniciales,
-  gastosFijos: [
-    { id: '1', concepto: 'Agua', monto: 800, categoria: 'servicios' },
-    { id: '2', concepto: 'Luz', monto: 1200, categoria: 'servicios' },
-    { id: '3', concepto: 'Internet', monto: 500, categoria: 'servicios' },
-    { id: '4', concepto: 'Renta del local', monto: 3500, categoria: 'servicios' },
-  ],
+  gastosFijos: [],
   precios: {
-    garrafon20L: 30,
-    garrafon10L: 18,
-    litro: 2,
+    garrafon20L: {
+      id: 'garrafon20L',
+      nombre: 'Garrafón 20L',
+      precio: 0,
+      costo: 0,
+      unidad: 'unidad',
+      activo: true,
+    },
+    garrafon10L: {
+      id: 'garrafon10L',
+      nombre: 'Garrafón 10L (Medio)',
+      precio: 0,
+      costo: 0,
+      unidad: 'unidad',
+      activo: true,
+    },
+    litro: {
+      id: 'litro',
+      nombre: 'Litro de Agua',
+      precio: 0,
+      costo: 0,
+      unidad: 'litro',
+      activo: true,
+    },
   },
   tareasVisita: [],
-  manual: [
-    {
-      id: '1',
-      titulo: 'Medición de Cloro y pH',
-      pagina: 6,
-      contenido: 'Pasos para la toma de muestra y medición de parámetros de calidad.',
-      tags: ['calidad', 'medicion', 'cloro', 'ph'],
-    },
-    {
-      id: '2',
-      titulo: 'Retrolavado de Filtro Dual',
-      pagina: 7,
-      contenido: 'Procedimiento de retrolavado del filtro de arena y carbón activado.',
-      tags: ['filtros', 'retrolavado', 'mantenimiento'],
-    },
-    {
-      id: '3',
-      titulo: 'Filtro Suavizador',
-      pagina: 12,
-      contenido: 'Información sobre el filtro suavizador y regeneración de resina.',
-      tags: ['suavizador', 'dureza', 'resina'],
-    },
-  ],
+  manual: manualCompleto,
 
   fetchInitialData: async () => {
     set({ loading: true });
@@ -207,6 +206,8 @@ export const useStore = create<AppState>((set, get) => ({
         get().fetchRegistrosMantenimiento(),
         get().fetchVentas(),
         get().fetchGastos(),
+        get().fetchGastosFijos(),
+        get().fetchPrecios(),
         get().fetchNotificaciones(),
       ]);
     } catch (err) {
@@ -289,7 +290,20 @@ export const useStore = create<AppState>((set, get) => ({
       .from('ventas')
       .select('*')
       .order('semana_inicio', { ascending: false });
-    if (!error) set({ ventas: data.map(v => ({ ...v, semanaInicio: new Date(v.semana_inicio), semanaFin: new Date(v.semana_fin), garrafonesVendidos: v.garrafones_vendidos, ingresoTotal: v.ingreso_total, promedioDiario: v.promedio_diario })) });
+    if (!error) set({
+      ventas: data.map(v => ({
+        ...v,
+        semanaInicio: new Date(v.semana_inicio),
+        semanaFin: new Date(v.semana_fin),
+        productosVendidos: {
+          garrafon20L: v.garrafon_20l || 0,
+          garrafon10L: v.garrafon_10l || 0,
+          litro: v.litros || 0,
+        },
+        ingresoTotal: v.ingreso_total,
+        promedioDiario: v.promedio_diario
+      }))
+    });
   },
 
   agregarVenta: async (venta) => {
@@ -298,13 +312,26 @@ export const useStore = create<AppState>((set, get) => ({
       .insert([{
         semana_inicio: venta.semanaInicio.toISOString().split('T')[0],
         semana_fin: venta.semanaFin.toISOString().split('T')[0],
-        garrafones_vendidos: venta.garrafonesVendidos,
+        garrafon_20l: venta.productosVendidos.garrafon20L,
+        garrafon_10l: venta.productosVendidos.garrafon10L,
+        litros: venta.productosVendidos.litro,
         ingreso_total: venta.ingresoTotal,
         promedio_diario: venta.promedioDiario,
       }])
       .select();
     if (!error && data) {
-      const nueva = { ...data[0], semanaInicio: new Date(data[0].semana_inicio), semanaFin: new Date(data[0].semana_fin), garrafonesVendidos: data[0].garrafones_vendidos, ingresoTotal: data[0].ingreso_total, promedioDiario: data[0].promedio_diario };
+      const nueva = {
+        ...data[0],
+        semanaInicio: new Date(data[0].semana_inicio),
+        semanaFin: new Date(data[0].semana_fin),
+        productosVendidos: {
+          garrafon20L: data[0].garrafon_20l || 0,
+          garrafon10L: data[0].garrafon_10l || 0,
+          litro: data[0].litros || 0,
+        },
+        ingresoTotal: data[0].ingreso_total,
+        promedioDiario: data[0].promedio_diario
+      };
       set((state) => ({ ventas: [nueva, ...state.ventas] }));
     }
   },
@@ -335,12 +362,80 @@ export const useStore = create<AppState>((set, get) => ({
     }
   },
 
-  actualizarGastoFijo: (id, monto) => {
-    set((state) => ({
-      gastosFijos: state.gastosFijos.map((g) =>
-        g.id === id ? { ...g, monto } : g
-      ),
-    }));
+  fetchGastosFijos: async () => {
+    const { data, error } = await supabase
+      .from('gastos_fijos')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (!error && data) {
+      set({
+        gastosFijos: data.map(g => ({
+          id: g.id,
+          concepto: g.concepto,
+          monto: g.monto,
+          categoria: g.categoria,
+          diaPago: g.dia_pago,
+        }))
+      });
+    }
+  },
+
+  actualizarGastoFijo: async (id, updates) => {
+    const { error } = await supabase
+      .from('gastos_fijos')
+      .update({
+        concepto: updates.concepto,
+        monto: updates.monto,
+        categoria: updates.categoria,
+        dia_pago: updates.diaPago,
+      })
+      .eq('id', id);
+
+    if (!error) {
+      set((state) => ({
+        gastosFijos: state.gastosFijos.map((g) =>
+          g.id === id ? { ...g, ...updates } : g
+        ),
+      }));
+    }
+  },
+
+  agregarGastoFijo: async (gasto) => {
+    const { data, error } = await supabase
+      .from('gastos_fijos')
+      .insert([{
+        concepto: gasto.concepto,
+        monto: gasto.monto,
+        categoria: gasto.categoria,
+        dia_pago: gasto.diaPago,
+      }])
+      .select();
+
+    if (!error && data) {
+      const nuevo = {
+        id: data[0].id,
+        concepto: data[0].concepto,
+        monto: data[0].monto,
+        categoria: data[0].categoria,
+        diaPago: data[0].dia_pago,
+      };
+      set((state) => ({
+        gastosFijos: [nuevo, ...state.gastosFijos],
+      }));
+    }
+  },
+
+  eliminarGastoFijo: async (id) => {
+    const { error } = await supabase
+      .from('gastos_fijos')
+      .delete()
+      .eq('id', id);
+
+    if (!error) {
+      set((state) => ({
+        gastosFijos: state.gastosFijos.filter((g) => g.id !== id),
+      }));
+    }
   },
 
   completarTarea: (id) => {
@@ -401,7 +496,50 @@ export const useStore = create<AppState>((set, get) => ({
     }
   },
 
-  actualizarPrecios: (precios) => {
-    set((state) => ({ precios: { ...state.precios, ...precios } }));
+  fetchPrecios: async () => {
+    const { data, error } = await supabase
+      .from('configuracion_precios')
+      .select('*');
+
+    if (!error && data) {
+      const preciosActualizados = { ...get().precios };
+      data.forEach(item => {
+        if (preciosActualizados[item.id as keyof ConfiguracionPrecios]) {
+          preciosActualizados[item.id as keyof ConfiguracionPrecios] = {
+            id: item.id,
+            nombre: item.nombre,
+            precio: item.precio,
+            costo: item.costo,
+            unidad: item.unidad,
+            activo: item.activo,
+          };
+        }
+      });
+      set({ precios: preciosActualizados });
+    }
+  },
+
+  actualizarProducto: async (productoId, updates) => {
+    const current = get().precios[productoId];
+    const { error } = await supabase
+      .from('configuracion_precios')
+      .upsert({
+        id: productoId,
+        nombre: updates.nombre || current.nombre,
+        precio: updates.precio ?? current.precio,
+        costo: updates.costo ?? current.costo,
+        unidad: updates.unidad || current.unidad,
+        activo: updates.activo ?? current.activo,
+        updated_at: new Date().toISOString(),
+      });
+
+    if (!error) {
+      set((state) => ({
+        precios: {
+          ...state.precios,
+          [productoId]: { ...state.precios[productoId], ...updates },
+        },
+      }));
+    }
   },
 }));
