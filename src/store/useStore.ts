@@ -219,55 +219,93 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   fetchRegistrosCalidad: async () => {
-    const { data, error } = await supabase
-      .from('registros_calidad')
-      .select('*')
-      .order('fecha', { ascending: false });
-    if (!error) set({ registrosCalidad: data.map(r => ({ ...r, fecha: new Date(r.fecha), proximaMedicion: new Date(r.proxima_medicion) })) });
+    try {
+      const { data, error } = await supabase
+        .from('registros_calidad')
+        .select('*')
+        .order('fecha', { ascending: false });
+      if (error) throw error;
+      set({ registrosCalidad: data.map(r => ({ ...r, fecha: new Date(r.fecha), proximaMedicion: new Date(r.proxima_medicion) })) });
+    } catch (err: any) {
+      console.error('Error fetching quality records:', err);
+      set({ error: 'Error al cargar registros de calidad' });
+    }
   },
 
   agregarRegistroCalidad: async (registro) => {
-    const { data, error } = await supabase
-      .from('registros_calidad')
-      .insert([{
-        fecha: registro.fecha.toISOString(),
-        cloro_residual: registro.cloroResidual,
-        sdt: registro.sdt,
-        dureza: registro.dureza,
-        responsable: registro.responsable,
-        observaciones: registro.observaciones,
-        proxima_medicion: registro.proximaMedicion.toISOString(),
-      }])
-      .select();
-    if (!error && data) {
-      const nuevo = { ...data[0], fecha: new Date(data[0].fecha), proximaMedicion: new Date(data[0].proxima_medicion), cloroResidual: data[0].cloro_residual };
-      set((state) => ({ registrosCalidad: [nuevo, ...state.registrosCalidad] }));
+    set({ loading: true, error: null });
+    try {
+      const { data, error } = await supabase
+        .from('registros_calidad')
+        .insert([{
+          fecha: registro.fecha.toISOString(),
+          cloro_residual: registro.cloroResidual,
+          sdt: registro.sdt,
+          dureza: registro.dureza,
+          responsable: registro.responsable,
+          observaciones: registro.observaciones,
+          proxima_medicion: registro.proximaMedicion.toISOString(),
+        }])
+        .select();
+
+      if (error) throw error;
+
+      if (data) {
+        const nuevo = { ...data[0], fecha: new Date(data[0].fecha), proximaMedicion: new Date(data[0].proxima_medicion), cloroResidual: data[0].cloro_residual };
+        set((state) => ({
+          registrosCalidad: [nuevo, ...state.registrosCalidad],
+          loading: false
+        }));
+      }
+    } catch (err: any) {
+      console.error('Error adding quality record:', err);
+      set({ error: err.message, loading: false });
+      throw err;
     }
   },
 
   fetchRegistrosMantenimiento: async () => {
-    const { data, error } = await supabase
-      .from('registros_mantenimiento')
-      .select('*')
-      .order('fecha_realizado', { ascending: false });
-    if (!error) set({ registrosMantenimiento: data.map(r => ({ ...r, fechaRealizado: new Date(r.fecha_realizado), proximoMantenimiento: new Date(r.proximo_mantenimiento), mantenimientoId: r.mantenimiento_id })) });
+    try {
+      const { data, error } = await supabase
+        .from('registros_mantenimiento')
+        .select('*')
+        .order('fecha_realizado', { ascending: false });
+      if (error) throw error;
+      set({ registrosMantenimiento: data.map(r => ({ ...r, fechaRealizado: new Date(r.fecha_realizado), proximoMantenimiento: new Date(r.proximo_mantenimiento), mantenimientoId: r.mantenimiento_id })) });
+    } catch (err: any) {
+      console.error('Error fetching maintenance records:', err);
+      set({ error: 'Error al cargar registros de mantenimiento' });
+    }
   },
 
   agregarRegistroMantenimiento: async (registro) => {
-    const { data, error } = await supabase
-      .from('registros_mantenimiento')
-      .insert([{
-        mantenimiento_id: registro.mantenimientoId,
-        fecha_realizado: registro.fechaRealizado.toISOString(),
-        responsable: registro.responsable,
-        observaciones: registro.observaciones,
-        proximo_mantenimiento: registro.proximoMantenimiento.toISOString(),
-        duracion: registro.duracion,
-      }])
-      .select();
-    if (!error && data) {
-      const nuevo = { ...data[0], fechaRealizado: new Date(data[0].fecha_realizado), proximoMantenimiento: new Date(data[0].proximo_mantenimiento), mantenimientoId: data[0].mantenimiento_id };
-      set((state) => ({ registrosMantenimiento: [nuevo, ...state.registrosMantenimiento] }));
+    set({ loading: true, error: null });
+    try {
+      const { data, error } = await supabase
+        .from('registros_mantenimiento')
+        .insert([{
+          mantenimiento_id: registro.mantenimientoId,
+          fecha_realizado: registro.fechaRealizado.toISOString(),
+          responsable: registro.responsable,
+          observaciones: registro.observaciones,
+          proximo_mantenimiento: registro.proximoMantenimiento.toISOString(),
+          duracion: registro.duracion,
+        }])
+        .select();
+
+      if (error) throw error;
+
+      if (data) {
+        const nuevo = { ...data[0], fechaRealizado: new Date(data[0].fecha_realizado), proximoMantenimiento: new Date(data[0].proximo_mantenimiento), mantenimientoId: data[0].mantenimiento_id };
+        set((state) => ({
+          registrosMantenimiento: [nuevo, ...state.registrosMantenimiento],
+          loading: false
+        }));
+      }
+    } catch (err: any) {
+      console.error('Error adding maintenance record:', err);
+      set({ error: err.message, loading: false });
+      throw err;
     }
   },
 
@@ -308,76 +346,120 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   agregarVenta: async (venta) => {
-    const { data, error } = await supabase
-      .from('ventas')
-      .insert([{
-        semana_inicio: venta.semanaInicio.toISOString().split('T')[0],
-        semana_fin: venta.semanaFin.toISOString().split('T')[0],
-        garrafon_20l: venta.productosVendidos.garrafon20L,
-        garrafon_10l: venta.productosVendidos.garrafon10L,
-        litros: venta.productosVendidos.litro,
-        ingreso_total: venta.ingresoTotal,
-        promedio_diario: venta.promedioDiario,
-      }])
-      .select();
-    if (!error && data) {
-      const nueva = {
-        ...data[0],
-        semanaInicio: new Date(data[0].semana_inicio),
-        semanaFin: new Date(data[0].semana_fin),
-        productosVendidos: {
-          garrafon20L: data[0].garrafon_20l || 0,
-          garrafon10L: data[0].garrafon_10l || 0,
-          litro: data[0].litros || 0,
-        },
-        ingresoTotal: data[0].ingreso_total,
-        promedioDiario: data[0].promedio_diario
-      };
-      set((state) => ({ ventas: [nueva, ...state.ventas] }));
+    set({ loading: true, error: null });
+    try {
+      const { data, error } = await supabase
+        .from('ventas')
+        .insert([{
+          semana_inicio: venta.semanaInicio.toISOString().split('T')[0],
+          semana_fin: venta.semanaFin.toISOString().split('T')[0],
+          garrafon_20l: venta.productosVendidos.garrafon20L,
+          garrafon_10l: venta.productosVendidos.garrafon10L,
+          litros: venta.productosVendidos.litro,
+          ingreso_total: venta.ingresoTotal,
+          promedio_diario: venta.promedioDiario,
+        }])
+        .select();
+
+      if (error) throw error;
+
+      if (data) {
+        const nueva = {
+          ...data[0],
+          semanaInicio: new Date(data[0].semana_inicio),
+          semanaFin: new Date(data[0].semana_fin),
+          productosVendidos: {
+            garrafon20L: data[0].garrafon_20l || 0,
+            garrafon10L: data[0].garrafon_10l || 0,
+            litro: data[0].litros || 0,
+          },
+          ingresoTotal: data[0].ingreso_total,
+          promedioDiario: data[0].promedio_diario
+        };
+        set((state) => ({
+          ventas: [nueva, ...state.ventas],
+          loading: false
+        }));
+      }
+    } catch (err: any) {
+      console.error('Error al agregar venta:', err);
+      set({
+        error: err.message || 'Error al guardar la venta en la base de datos',
+        loading: false
+      });
+      throw err;
     }
   },
 
   fetchGastos: async () => {
-    const { data, error } = await supabase
-      .from('gastos')
-      .select('*')
-      .order('fecha', { ascending: false });
-    if (!error) set({ gastos: data.map(g => ({ ...g, fecha: new Date(g.fecha) })) });
+    try {
+      const { data, error } = await supabase
+        .from('gastos')
+        .select('*')
+        .order('fecha', { ascending: false });
+      if (error) throw error;
+      set({ gastos: data.map(g => ({ ...g, fecha: new Date(g.fecha) })) });
+    } catch (err: any) {
+      console.error('Error fetching expenses:', err);
+      set({ error: 'Error al cargar los gastos' });
+    }
   },
 
   agregarGasto: async (gasto) => {
-    const { data, error } = await supabase
-      .from('gastos')
-      .insert([{
-        fecha: gasto.fecha.toISOString().split('T')[0],
-        concepto: gasto.concepto,
-        monto: gasto.monto,
-        categoria: gasto.categoria,
-        recurrente: gasto.recurrente,
-        notas: gasto.notas,
-      }])
-      .select();
-    if (!error && data) {
-      const nuevo = { ...data[0], fecha: new Date(data[0].fecha) };
-      set((state) => ({ gastos: [nuevo, ...state.gastos] }));
+    set({ loading: true, error: null });
+    try {
+      const { data, error } = await supabase
+        .from('gastos')
+        .insert([{
+          fecha: gasto.fecha.toISOString().split('T')[0],
+          concepto: gasto.concepto,
+          monto: gasto.monto,
+          categoria: gasto.categoria,
+          recurrente: gasto.recurrente,
+          notas: gasto.notas,
+        }])
+        .select();
+
+      if (error) throw error;
+
+      if (data) {
+        const nuevo = { ...data[0], fecha: new Date(data[0].fecha) };
+        set((state) => ({
+          gastos: [nuevo, ...state.gastos],
+          loading: false
+        }));
+      }
+    } catch (err: any) {
+      console.error('Error al agregar gasto:', err);
+      set({
+        error: err.message || 'Error al guardar el gasto',
+        loading: false
+      });
+      throw err;
     }
   },
 
   fetchGastosFijos: async () => {
-    const { data, error } = await supabase
-      .from('gastos_fijos')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (!error && data) {
-      set({
-        gastosFijos: data.map(g => ({
-          id: g.id,
-          concepto: g.concepto,
-          monto: g.monto,
-          categoria: g.categoria,
-          diaPago: g.dia_pago,
-        }))
-      });
+    try {
+      const { data, error } = await supabase
+        .from('gastos_fijos')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      if (data) {
+        set({
+          gastosFijos: data.map(g => ({
+            id: g.id,
+            concepto: g.concepto,
+            monto: g.monto,
+            categoria: g.categoria,
+            diaPago: g.dia_pago,
+          }))
+        });
+      }
+    } catch (err: any) {
+      console.error('Error fetching fixed expenses:', err);
+      set({ error: 'Error al cargar los gastos fijos' });
     }
   },
 
@@ -574,26 +656,34 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   actualizarProducto: async (productoId, updates) => {
-    const current = get().precios[productoId];
-    const { error } = await supabase
-      .from('configuracion_precios')
-      .upsert({
-        id: productoId,
-        nombre: updates.nombre || current.nombre,
-        precio: updates.precio ?? current.precio,
-        costo: updates.costo ?? current.costo,
-        unidad: updates.unidad || current.unidad,
-        activo: updates.activo ?? current.activo,
-        updated_at: new Date().toISOString(),
-      });
+    set({ loading: true, error: null });
+    try {
+      const current = get().precios[productoId];
+      const { error } = await supabase
+        .from('configuracion_precios')
+        .upsert({
+          id: productoId,
+          nombre: updates.nombre || current.nombre,
+          precio: updates.precio ?? current.precio,
+          costo: updates.costo ?? current.costo,
+          unidad: updates.unidad || current.unidad,
+          activo: updates.activo ?? current.activo,
+          updated_at: new Date().toISOString(),
+        });
 
-    if (!error) {
+      if (error) throw error;
+
       set((state) => ({
         precios: {
           ...state.precios,
           [productoId]: { ...state.precios[productoId], ...updates },
         },
+        loading: false
       }));
+    } catch (err: any) {
+      console.error('Error updating product:', err);
+      set({ error: err.message, loading: false });
+      throw err;
     }
   },
 }));

@@ -8,6 +8,8 @@ import { es } from 'date-fns/locale';
 const Finanzas = () => {
   const [showGastoForm, setShowGastoForm] = useState(false);
   const [showVentaForm, setShowVentaForm] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const ventas = useStore((state) => state.ventas);
   const gastos = useStore((state) => state.gastos);
@@ -65,32 +67,43 @@ const Finanzas = () => {
     setGastoForm({ concepto: '', monto: 0, categoria: 'insumos', fecha: format(new Date(), 'yyyy-MM-dd') });
   };
 
-  const handleAgregarVenta = (e: React.FormEvent) => {
+  const handleAgregarVenta = async (e: React.FormEvent) => {
     e.preventDefault();
-    const fechaSeleccionada = new Date(ventaForm.fecha);
-    const inicioSemana = new Date(fechaSeleccionada);
-    inicioSemana.setDate(fechaSeleccionada.getDate() - fechaSeleccionada.getDay());
-    const finSemana = new Date(inicioSemana);
-    finSemana.setDate(inicioSemana.getDate() + 6);
+    setIsSubmitting(true);
+    setSubmitError(null);
 
-    const ingresoTotal =
-      (ventaForm.garrafon20L * precios.garrafon20L.precio) +
-      (ventaForm.garrafon10L * precios.garrafon10L.precio) +
-      (ventaForm.litros * precios.litro.precio);
+    try {
+      const fechaSeleccionada = new Date(ventaForm.fecha);
+      const inicioSemana = new Date(fechaSeleccionada);
+      inicioSemana.setDate(fechaSeleccionada.getDate() - fechaSeleccionada.getDay());
+      const finSemana = new Date(inicioSemana);
+      finSemana.setDate(inicioSemana.getDate() + 6);
 
-    agregarVenta({
-      semanaInicio: inicioSemana,
-      semanaFin: finSemana,
-      productosVendidos: {
-        garrafon20L: ventaForm.garrafon20L,
-        garrafon10L: ventaForm.garrafon10L,
-        litro: ventaForm.litros,
-      },
-      ingresoTotal,
-      promedioDiario: ingresoTotal / 7,
-    });
-    setShowVentaForm(false);
-    setVentaForm({ garrafon20L: 0, garrafon10L: 0, litros: 0, fecha: format(new Date(), 'yyyy-MM-dd') });
+      const ingresoTotal =
+        (ventaForm.garrafon20L * precios.garrafon20L.precio) +
+        (ventaForm.garrafon10L * precios.garrafon10L.precio) +
+        (ventaForm.litros * precios.litro.precio);
+
+      await agregarVenta({
+        semanaInicio: inicioSemana,
+        semanaFin: finSemana,
+        productosVendidos: {
+          garrafon20L: ventaForm.garrafon20L,
+          garrafon10L: ventaForm.garrafon10L,
+          litro: ventaForm.litros,
+        },
+        ingresoTotal,
+        promedioDiario: ingresoTotal / 7,
+      });
+
+      setShowVentaForm(false);
+      setVentaForm({ garrafon20L: 0, garrafon10L: 0, litros: 0, fecha: format(new Date(), 'yyyy-MM-dd') });
+      alert('¡Venta registrada con éxito!');
+    } catch (err: any) {
+      setSubmitError(err.message || 'Error al guardar la venta. Verifica tu conexión o el servidor.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -368,17 +381,30 @@ const Finanzas = () => {
                 <p className="text-sm text-gray-600">Ingreso Total Estimado:</p>
                 <p className="text-3xl font-bold text-green-600 mt-2">
                   ${((ventaForm.garrafon20L * precios.garrafon20L.precio) +
-                     (ventaForm.garrafon10L * precios.garrafon10L.precio) +
-                     (ventaForm.litros * precios.litro.precio)).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    (ventaForm.garrafon10L * precios.garrafon10L.precio) +
+                    (ventaForm.litros * precios.litro.precio)).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                 </p>
               </div>
+              {submitError && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+                  {submitError}
+                </div>
+              )}
+
               <div className="flex gap-3">
-                <button type="submit" className="btn-primary flex-1">
-                  Guardar
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className={`btn-primary flex-1 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  {isSubmitting ? 'Guardando...' : 'Guardar'}
                 </button>
                 <button
                   type="button"
-                  onClick={() => setShowVentaForm(false)}
+                  onClick={() => {
+                    setShowVentaForm(false);
+                    setSubmitError(null);
+                  }}
                   className="btn-secondary flex-1"
                 >
                   Cancelar
