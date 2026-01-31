@@ -11,7 +11,6 @@ import {
 } from 'lucide-react';
 import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
 
 // Helper to parse "YYYY-MM-DD" from form as Local Date
 const parseFormDate = (dateStr: string) => {
