@@ -1,7 +1,6 @@
 import { useStore } from '../store/useStore';
 import { FileText, Download, TrendingUp, CheckCircle, DollarSign } from 'lucide-react';
 import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
 
 const Reportes = () => {
   const ventas = useStore((state) => state.ventas);

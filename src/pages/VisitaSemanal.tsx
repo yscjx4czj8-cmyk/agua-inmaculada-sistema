@@ -18,7 +18,7 @@ const VisitaSemanal = () => {
   }, []);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: any;
     if (modoVisita && tiempoInicio) {
       interval = setInterval(() => {
         const segundos = Math.floor((new Date().getTime() - tiempoInicio.getTime()) / 1000);
@@ -45,7 +45,6 @@ const VisitaSemanal = () => {
   const tareasCompletadas = tareasVisita.filter((t) => t.completada);
 
   const tiempoTotal = tareasVisita.reduce((acc, t) => acc + t.tiempoEstimado, 0);
-  const tiempoCompletado = tareasCompletadas.reduce((acc, t) => acc + t.tiempoEstimado, 0);
   const progreso = tareasVisita.length > 0
     ? Math.round((tareasCompletadas.length / tareasVisita.length) * 100)
     : 0;

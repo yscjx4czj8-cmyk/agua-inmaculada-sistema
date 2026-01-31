@@ -1,6 +1,6 @@
 import { Calendar as CalendarIcon, Clock, AlertCircle } from 'lucide-react';
 import { useStore } from '../store/useStore';
-import { format, addDays, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, isBefore } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, isBefore } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useState } from 'react';
 
@@ -79,9 +79,8 @@ const Agenda = () => {
                       {mantenimientos.slice(0, 3).map((_, idx) => (
                         <div
                           key={idx}
-                          className={`w-1.5 h-1.5 rounded-full ${
-                            seleccionado ? 'bg-white' : 'bg-orange-500'
-                          }`}
+                          className={`w-1.5 h-1.5 rounded-full ${seleccionado ? 'bg-white' : 'bg-orange-500'
+                            }`}
                         />
                       ))}
                     </div>
@@ -152,13 +151,12 @@ const Agenda = () => {
             return (
               <div
                 key={registro.id}
-                className={`p-4 rounded-lg border-l-4 ${
-                  esUrgente
+                className={`p-4 rounded-lg border-l-4 ${esUrgente
                     ? 'bg-red-50 border-red-500'
                     : diasRestantes <= 7
-                    ? 'bg-orange-50 border-orange-500'
-                    : 'bg-gray-50 border-gray-300'
-                }`}
+                      ? 'bg-orange-50 border-orange-500'
+                      : 'bg-gray-50 border-gray-300'
+                  }`}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
@@ -180,19 +178,18 @@ const Agenda = () => {
                       <AlertCircle className="w-6 h-6 text-red-500 mb-2" />
                     )}
                     <span
-                      className={`text-sm font-bold ${
-                        esUrgente
+                      className={`text-sm font-bold ${esUrgente
                           ? 'text-red-600'
                           : diasRestantes <= 7
-                          ? 'text-orange-600'
-                          : 'text-gray-600'
-                      }`}
+                            ? 'text-orange-600'
+                            : 'text-gray-600'
+                        }`}
                     >
                       {diasRestantes === 0
                         ? 'HOY'
                         : diasRestantes === 1
-                        ? 'MAÑANA'
-                        : `${diasRestantes} días`}
+                          ? 'MAÑANA'
+                          : `${diasRestantes} días`}
                     </span>
                   </div>
                 </div>
