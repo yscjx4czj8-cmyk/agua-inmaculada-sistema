@@ -353,6 +353,7 @@ export const useStore = create<AppState>((set, get) => ({
         .insert([{
           semana_inicio: venta.semanaInicio.toISOString().split('T')[0],
           semana_fin: venta.semanaFin.toISOString().split('T')[0],
+          garrafones_vendidos: venta.productosVendidos.garrafon20L + venta.productosVendidos.garrafon10L,
           garrafon_20l: venta.productosVendidos.garrafon20L,
           garrafon_10l: venta.productosVendidos.garrafon10L,
           litros: venta.productosVendidos.litro,
