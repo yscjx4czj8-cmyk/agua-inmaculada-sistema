@@ -1,6 +1,15 @@
+```
 import { useState } from 'react';
 import { useStore } from '../store/useStore';
-import { DollarSign, TrendingUp, TrendingDown, Plus, Upload, Calendar, Target, ArrowUpRight, ArrowDownRight, Trash2, Receipt } from 'lucide-react';
+import { 
+  DollarSign, 
+  TrendingUp, 
+  TrendingDown, 
+  Plus, 
+  Trash2, 
+  Receipt,
+  Upload
+} from 'lucide-react';
 import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -216,13 +225,13 @@ const Finanzas = () => {
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                label={({ name, percent }) => `${ name } ${ (percent * 100).toFixed(0) }% `}
                 outerRadius={100}
                 fill="#8884d8"
                 dataKey="value"
               >
                 {gastosData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
+                  <Cell key={`cell - ${ index } `} fill={entry.color} />
                 ))}
               </Pie>
               <Tooltip />
@@ -348,10 +357,11 @@ const Finanzas = () => {
                         <p className="text-xs text-slate-500">{format(g.fecha, 'dd/MM/yyyy')}</p>
                       </td>
                       <td className="py-4">
-                        <span className={`text-xs px-2 py-1 rounded-full ${g.categoria === 'mantenimiento' ? 'bg-amber-100 text-amber-700' :
-                          g.categoria === 'insumos' ? 'bg-green-100 text-green-700' :
-                            'bg-slate-100 text-slate-700'
-                          }`}>
+                        <span className={`text - xs px - 2 py - 1 rounded - full ${
+  g.categoria === 'mantenimiento' ? 'bg-amber-100 text-amber-700' :
+  g.categoria === 'insumos' ? 'bg-green-100 text-green-700' :
+    'bg-slate-100 text-slate-700'
+} `}>
                           {g.categoria}
                         </span>
                       </td>
@@ -533,8 +543,8 @@ const Finanzas = () => {
                 <p className="text-sm text-gray-600">Ingreso Total Estimado:</p>
                 <p className="text-3xl font-bold text-green-600 mt-2">
                   ${((ventaForm.garrafon20L * precios.garrafon20L.precio) +
-                    (ventaForm.garrafon10L * precios.garrafon10L.precio) +
-                    (ventaForm.litros * precios.litro.precio)).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+    (ventaForm.garrafon10L * precios.garrafon10L.precio) +
+    (ventaForm.litros * precios.litro.precio)).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                 </p>
               </div>
               {submitError && (
@@ -547,7 +557,7 @@ const Finanzas = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className={`btn-primary flex-1 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className={`btn - primary flex - 1 ${ isSubmitting ? 'opacity-50 cursor-not-allowed' : '' } `}
                 >
                   {isSubmitting ? 'Guardando...' : 'Guardar'}
                 </button>
