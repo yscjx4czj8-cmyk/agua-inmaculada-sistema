@@ -69,15 +69,15 @@ const Mantenimientos = () => {
   return (
     <div className="space-y-10 pb-12">
       {/* Header Profile Section */}
-      <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-r from-slate-900 to-slate-800 p-10 text-white shadow-2xl">
+      <div className="relative overflow-hidden rounded-3xl lg:rounded-[2.5rem] bg-gradient-to-r from-slate-900 to-slate-800 p-6 lg:p-10 text-white shadow-2xl">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
           <div className="flex items-center gap-6">
             <div className="p-5 bg-white/10 backdrop-blur-2xl rounded-3xl border border-white/20 shadow-inner">
               <Wrench className="w-10 h-10 text-primary-400" />
             </div>
             <div>
-              <h1 className="text-3xl font-extrabold tracking-tight">Centro de Mantenimiento</h1>
-              <p className="text-slate-400 font-medium mt-1">
+              <h1 className="text-xl lg:text-3xl font-extrabold tracking-tight uppercase lg:normal-case">Centro de Mantenimiento</h1>
+              <p className="text-slate-400 font-medium mt-1 text-xs lg:text-base">
                 Protocolos detallados y guías interactivas para la operación óptima.
               </p>
             </div>
@@ -106,7 +106,7 @@ const Mantenimientos = () => {
           return (
             <div
               key={mantenimiento.id}
-              className="group relative bg-white rounded-[2.5rem] p-10 ring-1 ring-slate-100 hover:ring-primary-200 transition-all duration-500 hover:shadow-[0_20px_50px_-15px_rgba(0,0,0,0.1)] cursor-pointer"
+              className="group relative bg-white rounded-3xl lg:rounded-[2.5rem] p-6 lg:p-10 ring-1 ring-slate-100 hover:ring-primary-200 transition-all duration-500 hover:shadow-[0_20px_50px_-15px_rgba(0,0,0,0.1)] cursor-pointer"
               onClick={() => setSelectedMantenimiento(mantenimiento)}
             >
               <div className="flex items-center justify-between mb-8">
@@ -149,8 +149,8 @@ const Mantenimientos = () => {
       {/* Modal de Detalle Premium */}
       {selectedMantenimiento && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[100] p-4">
-          <div className="bg-white rounded-[3rem] shadow-[0_35px_60px_-15px_rgba(0,0,0,0.3)] max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-            <div className="p-10 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+          <div className="bg-white rounded-[2.5rem] lg:rounded-[3rem] shadow-[0_35px_60px_-15px_rgba(0,0,0,0.3)] max-w-4xl w-full max-h-[95vh] overflow-hidden flex flex-col">
+            <div className="p-6 lg:p-10 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
               <div className="flex items-center gap-6">
                 <div className="p-4 bg-primary-500 rounded-3xl shadow-lg shadow-primary-500/20">
                   <Wrench className="w-8 h-8 text-white" />
@@ -165,7 +165,7 @@ const Mantenimientos = () => {
               </button>
             </div>
 
-            <div className="p-10 space-y-10 overflow-y-auto">
+            <div className="p-6 lg:p-10 space-y-8 lg:space-y-10 overflow-y-auto">
               {/* Info Bar */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {[
@@ -173,12 +173,12 @@ const Mantenimientos = () => {
                   { label: 'Carga de Trabajo', value: `${selectedMantenimiento.tiempoEstimado} minutos`, icon: Timer, color: 'text-amber-500' },
                   { label: 'Nivel Operativo', value: categorias[selectedMantenimiento.categoria]?.label || 'General', icon: Activity, color: 'text-primary-500' }
                 ].map((info, idx) => (
-                  <div key={idx} className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100/50">
+                  <div key={idx} className="p-5 lg:p-6 bg-slate-50 rounded-2xl lg:rounded-[2rem] border border-slate-100/50">
                     <div className="flex items-center gap-3 mb-3">
                       <info.icon className={`w-4 h-4 ${info.color}`} />
                       <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">{info.label}</span>
                     </div>
-                    <p className="text-lg font-black text-slate-800 capitalize">{info.value}</p>
+                    <p className="text-base lg:text-lg font-black text-slate-800 capitalize">{info.value}</p>
                   </div>
                 ))}
               </div>
@@ -209,7 +209,7 @@ const Mantenimientos = () => {
                     <div
                       key={paso.numero}
                       onClick={() => actualizarPaso(selectedMantenimiento.id, paso.numero, !paso.completado)}
-                      className={`group relative p-8 rounded-[2rem] border-2 transition-all duration-300 cursor-pointer ${paso.completado
+                      className={`group relative p-6 lg:p-8 rounded-2xl lg:rounded-[2rem] border-2 transition-all duration-300 cursor-pointer ${paso.completado
                         ? 'border-emerald-200 bg-emerald-50/50'
                         : 'border-slate-100 bg-white hover:border-primary-100 hover:shadow-xl hover:shadow-primary-500/5'
                         }`}

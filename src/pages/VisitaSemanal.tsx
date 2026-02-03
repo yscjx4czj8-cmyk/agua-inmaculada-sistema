@@ -81,15 +81,15 @@ const VisitaSemanal = () => {
   return (
     <div className="space-y-10 pb-12">
       {/* Header Profile Section */}
-      <div className={`relative overflow-hidden rounded-[2.5rem] p-10 text-white shadow-2xl transition-all duration-700 ${modoVisita ? 'bg-gradient-to-br from-primary-900 via-primary-800 to-slate-900 shadow-primary-500/20' : 'bg-gradient-to-r from-slate-900 to-slate-800'}`}>
+      <div className={`relative overflow-hidden rounded-3xl lg:rounded-[2.5rem] p-6 lg:p-10 text-white shadow-2xl transition-all duration-700 ${modoVisita ? 'bg-gradient-to-br from-primary-900 via-primary-800 to-slate-900 shadow-primary-500/20' : 'bg-gradient-to-r from-slate-900 to-slate-800'}`}>
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
           <div className="flex items-center gap-6">
             <div className={`p-5 backdrop-blur-2xl rounded-3xl border border-white/20 shadow-inner ${modoVisita ? 'bg-primary-400/20' : 'bg-white/10'}`}>
               <ClipboardCheck className={`w-10 h-10 ${modoVisita ? 'text-primary-300' : 'text-primary-400'}`} />
             </div>
             <div>
-              <h1 className="text-3xl font-extrabold tracking-tight">Focus Mode: Visita Semanal</h1>
-              <p className="text-slate-400 font-medium mt-1">
+              <h1 className="text-xl lg:text-3xl font-extrabold tracking-tight">Focus Mode: Visita Semanal</h1>
+              <p className="text-slate-400 font-medium mt-1 text-xs lg:text-base">
                 {modoVisita ? 'Ejecutando protocolo de mantenimiento en tiempo real.' : 'Organiza y ejecuta las tareas críticas de tu planta.'}
               </p>
             </div>
@@ -163,17 +163,17 @@ const VisitaSemanal = () => {
           <div className="flex flex-col md:flex-row items-center justify-between gap-10 bg-slate-900 rounded-[2.9rem] p-10">
             <div className="flex items-center gap-10">
               <div className="relative">
-                <svg className="w-32 h-32 transform -rotate-90">
-                  <circle cx="64" cy="64" r="60" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-slate-800" />
-                  <circle cx="64" cy="64" r="60" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-primary-500 transition-all duration-1000" strokeDasharray={377} strokeDashoffset={377 - (377 * progreso) / 100} />
+                <svg className="w-24 h-24 lg:w-32 lg:h-32 transform -rotate-90">
+                  <circle cx="50%" cy="50%" r="40%" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-slate-800" />
+                  <circle cx="50%" cy="50%" r="40%" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-primary-500 transition-all duration-1000" strokeDasharray="250" strokeDashoffset={250 - (250 * progreso) / 100} />
                 </svg>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-2xl font-black text-white">{progreso}%</span>
+                  <span className="text-lg lg:text-2xl font-black text-white">{progreso}%</span>
                 </div>
               </div>
               <div>
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Tiempo en Planta</span>
-                <p className="text-6xl font-black text-white tracking-tighter mt-1 tabular-nums">{formatTiempo(tiempoTranscurrido)}</p>
+                <p className="text-4xl lg:text-6xl font-black text-white tracking-tighter mt-1 tabular-nums">{formatTiempo(tiempoTranscurrido)}</p>
               </div>
             </div>
 

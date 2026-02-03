@@ -26,11 +26,21 @@ const Manual = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-800">📖 Manual de Operación Completo</h1>
-        <p className="text-gray-600 mt-2">
-          Guía completa de operación y mantenimiento del sistema de purificación
-        </p>
+      <div className="relative overflow-hidden rounded-3xl lg:rounded-[2.5rem] bg-gradient-to-r from-slate-900 to-slate-800 p-6 lg:p-10 text-white shadow-2xl mb-10">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
+          <div className="flex items-center gap-6">
+            <div className="p-5 bg-white/10 backdrop-blur-2xl rounded-3xl border border-white/20 shadow-inner">
+              <BookOpen className="w-10 h-10 text-primary-400" />
+            </div>
+            <div>
+              <h1 className="text-xl lg:text-3xl font-extrabold tracking-tight uppercase lg:normal-case">Manual de Operación</h1>
+              <p className="text-slate-400 font-medium mt-1 text-xs lg:text-base">
+                Guía completa de operación y mantenimiento del sistema de purificación.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-primary-500/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2"></div>
       </div>
 
       {/* Búsqueda */}
@@ -55,12 +65,12 @@ const Manual = () => {
       {/* Estadísticas del Manual */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="card bg-gradient-to-br from-blue-500 to-blue-600 text-white">
-          <div className="flex items-center gap-3">
-            <BookOpen className="w-8 h-8" />
-            <div>
-              <p className="text-sm opacity-90">Total Capítulos</p>
-              <p className="text-2xl font-bold">{manual.length}</p>
-            </div>
+          <div className="p-4 bg-white/10 rounded-xl mb-4 self-start">
+            <BookOpen className="w-6 h-6" />
+          </div>
+          <div>
+            <p className="text-[10px] uppercase font-black tracking-widest opacity-80">Capítulos</p>
+            <p className="text-3xl font-black">{manual.length}</p>
           </div>
         </div>
         <div className="card bg-gradient-to-br from-green-500 to-green-600 text-white">
@@ -97,7 +107,7 @@ const Manual = () => {
         {capitulosFiltrados.map((capitulo) => (
           <div
             key={capitulo.id}
-            className="card border-2 border-gray-200 hover:border-primary-300 transition-all"
+            className="group card bg-white rounded-3xl lg:rounded-[2rem] p-6 lg:p-8 border-none ring-1 ring-slate-100 hover:ring-primary-200 transition-all duration-300"
           >
             {/* Encabezado del Capítulo */}
             <div

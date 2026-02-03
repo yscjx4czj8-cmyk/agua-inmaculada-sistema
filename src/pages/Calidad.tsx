@@ -53,15 +53,15 @@ const Calidad = () => {
   return (
     <div className="space-y-10 pb-12">
       {/* Header Section */}
-      <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-r from-slate-900 to-slate-800 p-10 text-white shadow-2xl">
+      <div className="relative overflow-hidden rounded-3xl lg:rounded-[2.5rem] bg-gradient-to-r from-slate-900 to-slate-800 p-6 lg:p-10 text-white shadow-2xl">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
           <div className="flex items-center gap-6">
             <div className="p-5 bg-white/10 backdrop-blur-2xl rounded-3xl border border-white/20 shadow-inner">
               <Droplet className="w-10 h-10 text-primary-400" />
             </div>
             <div>
-              <h1 className="text-3xl font-extrabold tracking-tight">Control de Calidad H2O</h1>
-              <p className="text-slate-400 font-medium mt-1">
+              <h1 className="text-xl lg:text-3xl font-extrabold tracking-tight uppercase lg:normal-case">Control de Calidad H2O</h1>
+              <p className="text-slate-400 font-medium mt-1 text-xs lg:text-base">
                 Monitoreo físico-químico del agua purificada en tiempo real.
               </p>
             </div>
@@ -111,7 +111,7 @@ const Calidad = () => {
             action: 'Regenerar'
           }
         ].map((item, idx) => (
-          <div key={idx} className="card rounded-[2.5rem] p-10 border-none ring-1 ring-slate-100/50 hover:shadow-2xl transition-all group">
+          <div key={idx} className="card rounded-3xl lg:rounded-[2.5rem] p-6 lg:p-10 border-none ring-1 ring-slate-100/50 hover:shadow-2xl transition-all group">
             <div className="flex items-start justify-between mb-8">
               <div className={`p-4 ${item.bg} rounded-2xl group-hover:scale-110 transition-transform`}>
                 <item.icon className={`w-8 h-8 ${item.color}`} />
@@ -140,8 +140,8 @@ const Calidad = () => {
       {/* Formulario Modal Premium */}
       {showForm && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[100] p-4">
-          <div className="bg-white rounded-[3rem] shadow-[0_35px_60px_-15px_rgba(0,0,0,0.3)] max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-            <div className="p-10 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+          <div className="bg-white rounded-[2rem] lg:rounded-[3rem] shadow-[0_35px_60px_-15px_rgba(0,0,0,0.3)] max-w-3xl w-full max-h-[95vh] overflow-hidden flex flex-col">
+            <div className="p-6 lg:p-10 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
               <div>
                 <span className="text-[10px] font-black text-primary-500 uppercase tracking-[0.2em] mb-1 block">Protocolo de Laboratorio</span>
                 <h3 className="text-3xl font-extrabold text-slate-800 tracking-tight">Nueva Medición</h3>
@@ -151,8 +151,8 @@ const Calidad = () => {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-10 space-y-8 overflow-y-auto">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <form onSubmit={handleSubmit} className="p-6 lg:p-10 space-y-6 lg:space-y-8 overflow-y-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:grid-cols-2 lg:gap-8">
                 <div className="space-y-3">
                   <label className="text-sm font-black text-slate-700 uppercase tracking-widest ml-1">Cloro Residual (ppm)</label>
                   <div className="relative">
@@ -241,7 +241,7 @@ const Calidad = () => {
       )}
 
       {/* Historial Premium Table */}
-      <div className="card rounded-[2.5rem] p-10 border-none ring-1 ring-slate-100/50">
+      <div className="card rounded-3xl lg:rounded-[2.5rem] p-6 lg:p-10 border-none ring-1 ring-slate-100/50">
         <div className="flex items-center gap-4 mb-10">
           <div className="p-3 bg-slate-100 rounded-2xl">
             <ClipboardList className="w-6 h-6 text-slate-600" />
@@ -249,7 +249,7 @@ const Calidad = () => {
           <h3 className="text-2xl font-bold text-slate-800 tracking-tight">Historial de Calidad</h3>
         </div>
 
-        <div className="overflow-x-auto -mx-10 px-10">
+        <div className="overflow-x-auto -mx-6 lg:-mx-10 px-6 lg:px-10">
           <table className="w-full border-separate border-spacing-y-4">
             <thead>
               <tr className="text-slate-400">

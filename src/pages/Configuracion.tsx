@@ -44,15 +44,15 @@ const Configuracion = () => {
   return (
     <div className="space-y-10 pb-12">
       {/* Header Profile Section */}
-      <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-r from-slate-900 to-slate-800 p-10 text-white shadow-2xl">
+      <div className="relative overflow-hidden rounded-3xl lg:rounded-[2.5rem] bg-gradient-to-r from-slate-900 to-slate-800 p-6 lg:p-10 text-white shadow-2xl">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
           <div className="flex items-center gap-6">
             <div className="p-5 bg-white/10 backdrop-blur-2xl rounded-3xl border border-white/20 shadow-inner">
               <Settings className="w-10 h-10 text-primary-400" />
             </div>
             <div>
-              <h1 className="text-3xl font-extrabold tracking-tight">Preferencias del Sistema</h1>
-              <p className="text-slate-400 font-medium mt-1">
+              <h1 className="text-xl lg:text-3xl font-extrabold tracking-tight uppercase lg:normal-case">Preferencias del Sistema</h1>
+              <p className="text-slate-400 font-medium mt-1 text-xs lg:text-base">
                 Control total sobre precios, costos operativos y estructura financiera.
               </p>
             </div>
@@ -70,14 +70,14 @@ const Configuracion = () => {
 
       {/* Product Pricing Architecture */}
       <div className="grid grid-cols-1 gap-8">
-        <div className="card rounded-[2.5rem] p-10 border-none ring-1 ring-slate-100/50">
+        <div className="card rounded-3xl lg:rounded-[2.5rem] p-6 lg:p-10 border-none ring-1 ring-slate-100/50">
           <div className="flex items-center gap-4 mb-10">
             <div className="p-3 bg-primary-50 rounded-2xl">
               <DollarSign className="w-6 h-6 text-primary-600" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Arquitectura de Precios</h2>
-              <p className="text-sm font-medium text-slate-400">Define los márgenes operativos para cada línea de producto</p>
+              <h2 className="text-lg lg:text-2xl font-bold text-slate-800 tracking-tight">Arquitectura de Precios</h2>
+              <p className="text-[10px] lg:text-sm font-medium text-slate-400">Define los márgenes operativos para cada línea de producto</p>
             </div>
           </div>
 
@@ -145,7 +145,7 @@ const Configuracion = () => {
       </div>
 
       {/* Fixed Expenses Section */}
-      <div className="card rounded-[2.5rem] p-10 border-none ring-1 ring-slate-100/50">
+      <div className="card rounded-3xl lg:rounded-[2.5rem] p-6 lg:p-10 border-none ring-1 ring-slate-100/50">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-rose-50 rounded-2xl">
@@ -167,7 +167,7 @@ const Configuracion = () => {
 
         {/* Modal-style inline form */}
         {(nuevoGasto || editandoGasto) && (
-          <div className="relative overflow-hidden bg-slate-900 rounded-[2rem] p-8 mb-10 text-white animate-fade-in shadow-2xl">
+          <div className="relative overflow-hidden bg-slate-900 rounded-[2rem] p-6 lg:p-8 mb-10 text-white animate-fade-in shadow-2xl">
             <div className="relative z-10">
               <h3 className="text-xl font-bold mb-8 flex items-center gap-2">
                 {editandoGasto ? <Edit2 className="w-5 h-5 text-primary-400" /> : <Plus className="w-5 h-5 text-primary-400" />}
@@ -297,7 +297,7 @@ const Configuracion = () => {
 
         {/* Global Financial Summary Footer */}
         {gastosFijos.length > 0 && (
-          <div className="mt-12 p-8 bg-gradient-to-br from-primary-500 to-cyan-600 rounded-[2.5rem] shadow-2xl shadow-primary-500/20 text-white">
+          <div className="mt-12 p-6 lg:p-8 bg-gradient-to-br from-primary-500 to-cyan-600 rounded-3xl lg:rounded-[2.5rem] shadow-2xl shadow-primary-500/20 text-white">
             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-white/20 backdrop-blur-xl rounded-2xl">

@@ -76,11 +76,21 @@ const Reportes = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-800">Reportes</h1>
-        <p className="text-gray-600 mt-2">
-          Genera reportes detallados de calidad, mantenimientos y finanzas
-        </p>
+      <div className="relative overflow-hidden rounded-3xl lg:rounded-[2.5rem] bg-gradient-to-r from-slate-900 to-slate-800 p-6 lg:p-10 text-white shadow-2xl mb-10">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
+          <div className="flex items-center gap-6">
+            <div className="p-5 bg-white/10 backdrop-blur-2xl rounded-3xl border border-white/20 shadow-inner">
+              <FileText className="w-10 h-10 text-primary-400" />
+            </div>
+            <div>
+              <h1 className="text-xl lg:text-3xl font-extrabold tracking-tight uppercase lg:normal-case">Inteligencia de Datos</h1>
+              <p className="text-slate-400 font-medium mt-1 text-xs lg:text-base">
+                Genera reportes detallados de calidad, mantenimientos y finanzas.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-primary-500/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2"></div>
       </div>
 
       {/* Grid de Reportes */}
@@ -88,14 +98,14 @@ const Reportes = () => {
         {reportes.map((reporte) => {
           const Icon = reporte.icon;
           return (
-            <div key={reporte.id} className="card hover:shadow-2xl transition-shadow">
-              <div className={`bg-gradient-to-r ${reporte.color} p-4 -m-6 mb-6 rounded-t-xl`}>
-                <Icon className="w-8 h-8 text-white mb-2" />
-                <h3 className="text-lg font-bold text-white">{reporte.nombre}</h3>
-                <p className="text-sm text-white opacity-90 mt-1">{reporte.descripcion}</p>
+            <div key={reporte.id} className="card rounded-3xl lg:rounded-[2rem] p-0 overflow-hidden hover:shadow-2xl transition-all border-none ring-1 ring-slate-100">
+              <div className={`bg-gradient-to-r ${reporte.color} p-6 lg:p-8 text-white`}>
+                <Icon className="w-8 h-8 text-white mb-4" />
+                <h3 className="text-lg lg:text-xl font-extrabold uppercase lg:normal-case">{reporte.nombre}</h3>
+                <p className="text-xs lg:text-sm text-white opacity-90 mt-1">{reporte.descripcion}</p>
               </div>
 
-              <div className="space-y-3 mb-6">
+              <div className="p-6 lg:p-8">
                 {Object.entries(reporte.datos).map(([key, value]) => (
                   <div key={key} className="flex justify-between items-center">
                     <span className="text-sm text-gray-600">{key}:</span>
@@ -106,10 +116,10 @@ const Reportes = () => {
 
               <button
                 onClick={() => handleGenerarReporte(reporte.id)}
-                className="w-full btn-primary flex items-center justify-center gap-2"
+                className="w-full py-4 bg-slate-900 hover:bg-black text-white rounded-2xl font-black uppercase tracking-widest transition-all shadow-xl shadow-slate-900/10 flex items-center justify-center gap-2 mt-6"
               >
                 <Download className="w-5 h-5" />
-                Generar PDF
+                Descargar PDF
               </button>
             </div>
           );
@@ -117,15 +127,15 @@ const Reportes = () => {
       </div>
 
       {/* Reporte Operativo Integral */}
-      <div className="card">
-        <div className="flex items-center justify-between mb-6">
+      <div className="card rounded-3xl lg:rounded-[2.5rem] p-6 lg:p-10 border-none ring-1 ring-slate-100/50">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-10">
           <div>
-            <h3 className="text-2xl font-bold text-gray-800">📊 Reporte Operativo Integral</h3>
-            <p className="text-gray-600 mt-1">Resumen completo del mes</p>
+            <h3 className="text-xl lg:text-2xl font-black text-slate-800 uppercase lg:normal-case tracking-tight">📊 Reporte Operativo Integral</h3>
+            <p className="text-slate-400 text-xs lg:text-base font-medium mt-1">Resumen completo del mes</p>
           </div>
-          <button className="btn-primary flex items-center gap-2">
+          <button className="px-8 py-4 bg-primary-500 hover:bg-primary-400 text-white rounded-2xl font-black uppercase tracking-widest transition-all shadow-xl shadow-primary-500/30 flex items-center gap-3">
             <FileText className="w-5 h-5" />
-            Generar Reporte Completo
+            Exportar Full-Data
           </button>
         </div>
 
@@ -185,7 +195,7 @@ const Reportes = () => {
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 

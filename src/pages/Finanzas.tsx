@@ -193,8 +193,9 @@ const Finanzas = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">Análisis Financiero</h1>
-          <p className="text-gray-600 mt-2">Gestión de ventas, gastos y utilidades</p>
+          <h1 className="text-xl lg:text-3xl font-extrabold tracking-tight uppercase lg:normal-case">Inteligencia Financiera</h1>
+          <p className="text-slate-400 font-medium mt-1 text-xs lg:text-base">
+            Gestión de ventas, gastos y utilidades</p>
         </div>
         <div className="flex gap-3">
           <button
@@ -233,8 +234,7 @@ const Finanzas = () => {
             <span>+3.2% vs mes anterior</span>
           </div>
         </div>
-
-        <div className="card bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+        <div className="card bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-3xl lg:rounded-2xl p-6 lg:p-8">
           <p className="text-sm opacity-90">Utilidad Neta</p>
           <p className="text-3xl font-bold mt-2">${utilidadMes.toLocaleString()}</p>
           <div className="flex items-center gap-1 mt-2 text-sm">
@@ -255,7 +255,7 @@ const Finanzas = () => {
 
       {/* Control de Caja (Corte de Caja) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="card lg:col-span-1 bg-slate-900 text-white flex flex-col justify-between p-8">
+        <div className="card lg:col-span-1 bg-slate-900 text-white flex flex-col justify-between p-6 lg:p-8 rounded-3xl lg:rounded-2xl">
           <div>
             <div className="flex justify-between items-start mb-4">
               <h3 className="text-xl font-bold">Corte de Caja</h3>
@@ -275,13 +275,13 @@ const Finanzas = () => {
           </button>
         </div>
 
-        <div className="card lg:col-span-2">
+        <div className="card lg:col-span-2 rounded-3xl lg:rounded-2xl p-6 lg:p-8">
           <div className="flex items-center gap-2 mb-6">
             <History className="text-slate-400 w-5 h-5" />
             <h3 className="text-lg font-bold text-slate-800">Historial de Cortes y Retiros</h3>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto -mx-6 lg:mx-0 px-6 lg:px-0">
+            <table className="w-full text-xs lg:text-sm">
               <thead>
                 <tr className="text-left border-b border-slate-100 italic text-slate-400">
                   <th className="pb-3 px-2">Fecha</th>
@@ -685,15 +685,14 @@ const Finanzas = () => {
           </div>
         </div>
       )}
-      {/* Modal Corte de Caja */}
       {showCorteForm && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
           <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-100">
-            <div className="p-8 bg-slate-900 text-white">
-              <h3 className="text-2xl font-black">Registrar Corte</h3>
-              <p className="text-slate-400 text-sm mt-1">Ingresa el monto que vas a retirar físicamente de la caja.</p>
+            <div className="p-6 lg:p-8 bg-slate-900 text-white">
+              <h3 className="text-xl lg:text-2xl font-black uppercase lg:normal-case">Registrar Corte</h3>
+              <p className="text-slate-400 text-[10px] lg:text-sm mt-1">Ingresa el monto que vas a retirar físicamente de la caja.</p>
             </div>
-            <form onSubmit={handleCorteCaja} className="p-8 space-y-6">
+            <form onSubmit={handleCorteCaja} className="p-6 lg:p-8 space-y-6">
               <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Monto en Caja (Esperado)</p>
                 <p className="text-3xl font-black text-slate-800">${dineroEsperado.toLocaleString()}</p>

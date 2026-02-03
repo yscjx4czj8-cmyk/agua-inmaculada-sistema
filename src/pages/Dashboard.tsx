@@ -98,7 +98,7 @@ const Dashboard = () => {
   return (
     <div className="space-y-10 pb-12">
       {/* Dynamic Status Banner */}
-      <div className={`relative overflow-hidden rounded-[2rem] p-8 ${estadoGeneral === 'optimo' ? 'bg-emerald-600' :
+      <div className={`relative overflow-hidden rounded-3xl lg:rounded-[2rem] p-6 lg:p-8 ${estadoGeneral === 'optimo' ? 'bg-emerald-600' :
         estadoGeneral === 'atencion' ? 'bg-amber-500' : 'bg-rose-600'
         } text-white shadow-2xl transition-all duration-500`}>
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -136,8 +136,8 @@ const Dashboard = () => {
               style={{ backgroundImage: `linear-gradient(to bottom right, var(--tw-gradient-from), var(--tw-gradient-to))` }}></div>
             <div className="relative card rounded-[2rem] p-8 border-none bg-white font-sans ring-1 ring-slate-100/50">
               <div className="flex justify-between items-start mb-6">
-                <div className={`p-4 bg-gradient-to-br ${stat.gradient} rounded-2xl shadow-lg ${stat.shadow} group-hover:scale-110 transition-transform duration-500`}>
-                  <stat.icon className="w-6 h-6 text-white" />
+                <div className={`p-3 lg:p-4 bg-gradient-to-br ${stat.gradient} rounded-2xl shadow-lg ${stat.shadow} group-hover:scale-110 transition-transform duration-500`}>
+                  <stat.icon className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
                 </div>
                 {stat.trend && (
                   <span className="bg-emerald-50 text-emerald-600 text-[10px] font-bold px-2.5 py-1 rounded-lg">

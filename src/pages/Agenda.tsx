@@ -31,15 +31,15 @@ const Agenda = () => {
   return (
     <div className="space-y-10 pb-12">
       {/* Header Profile Section */}
-      <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-r from-slate-900 to-slate-800 p-10 text-white shadow-2xl">
+      <div className="relative overflow-hidden rounded-3xl lg:rounded-[2.5rem] bg-gradient-to-r from-slate-900 to-slate-800 p-6 lg:p-10 text-white shadow-2xl">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
           <div className="flex items-center gap-6">
             <div className="p-5 bg-white/10 backdrop-blur-2xl rounded-3xl border border-white/20 shadow-inner">
               <CalendarIcon className="w-10 h-10 text-primary-400" />
             </div>
             <div>
-              <h1 className="text-3xl font-extrabold tracking-tight">Agenda de Mantenimientos</h1>
-              <p className="text-slate-400 font-medium mt-1">
+              <h1 className="text-xl lg:text-3xl font-extrabold tracking-tight uppercase lg:normal-case">Agenda de Mantenimientos</h1>
+              <p className="text-slate-400 font-medium mt-1 text-xs lg:text-base">
                 Monitoreo inteligente de ciclos operativos y preventivos.
               </p>
             </div>
@@ -62,7 +62,7 @@ const Agenda = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         {/* Calendario Premium */}
         <div className="lg:col-span-2 space-y-8">
-          <div className="card rounded-[2.5rem] p-10 border-none ring-1 ring-slate-100/50">
+          <div className="card rounded-3xl lg:rounded-[2.5rem] p-6 lg:p-10 border-none ring-1 ring-slate-100/50">
             <div className="flex items-center justify-between mb-10">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-primary-50 rounded-2xl">
@@ -152,7 +152,7 @@ const Agenda = () => {
 
         {/* Panel de Detalles */}
         <div className="space-y-8">
-          <div className="card rounded-[2.5rem] p-8 border-none ring-1 ring-slate-100/50 bg-white">
+          <div className="card rounded-3xl lg:rounded-[2.5rem] p-6 lg:p-8 border-none ring-1 ring-slate-100/50 bg-white">
             <div className="pb-6 mb-6 border-b border-slate-50">
               <span className="text-[10px] font-black text-primary-500 uppercase tracking-[0.2em]">Detalle del Día</span>
               <h3 className="text-xl font-extrabold text-slate-800 mt-1 capitalize">
@@ -207,7 +207,7 @@ const Agenda = () => {
       </div>
 
       {/* Próximos Mantenimientos Section */}
-      <div className="card rounded-[2.5rem] p-10 border-none ring-1 ring-slate-100/50">
+      <div className="card rounded-3xl lg:rounded-[2.5rem] p-6 lg:p-10 border-none ring-1 ring-slate-100/50">
         <div className="flex items-center gap-4 mb-10">
           <div className="p-3 bg-emerald-50 rounded-2xl">
             <CalendarIcon className="w-6 h-6 text-emerald-600" />
