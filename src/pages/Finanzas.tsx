@@ -500,10 +500,9 @@ const Finanzas = () => {
         </div>
       </div>
 
-      {/* Modal Nuevo Gasto */}
       {showGastoForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-3xl lg:rounded-[2rem] shadow-2xl max-w-md w-full overflow-hidden border-none outline-none">
             <div className="p-6 border-b border-gray-200">
               <h3 className="text-2xl font-bold text-gray-800">Nuevo Gasto</h3>
             </div>
@@ -579,8 +578,8 @@ const Finanzas = () => {
 
       {/* Modal Nueva Venta */}
       {showVentaForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-3xl lg:rounded-[2rem] shadow-2xl max-w-md w-full overflow-hidden border-none outline-none">
             <div className="p-6 border-b border-gray-200">
               <h3 className="text-2xl font-bold text-gray-800">Registrar Ventas Semanales</h3>
             </div>

@@ -9,6 +9,7 @@ import {
 import { useStore } from '../store/useStore';
 import { format, differenceInDays } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { useNavigate } from 'react-router-dom';
 import {
   LineChart,
   Line,
@@ -23,6 +24,7 @@ import {
 } from 'recharts';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const ventas = useStore((state) => state.ventas);
   const registrosCalidad = useStore((state) => state.registrosCalidad);
   const notificaciones = useStore((state) => state.notificaciones);
@@ -118,7 +120,10 @@ const Dashboard = () => {
               </p>
             </div>
           </div>
-          <button className="px-8 py-3 bg-white text-slate-900 font-bold rounded-2xl hover:bg-slate-50 transition-colors shadow-lg shadow-black/10 active:scale-95">
+          <button
+            onClick={() => navigate('/mantenimientos')}
+            className="px-8 py-3 bg-white text-slate-900 font-bold rounded-2xl hover:bg-slate-50 transition-colors shadow-lg shadow-black/10 active:scale-95"
+          >
             Ver Detalles Técnicos
           </button>
         </div>
@@ -303,7 +308,12 @@ const Dashboard = () => {
               </div>
               <h3 className="text-xl font-bold text-slate-800">Hoja de Operación Local</h3>
             </div>
-            <button className="text-xs font-bold text-slate-400 hover:text-primary-600 transition-colors">Ver Todo</button>
+            <button
+              onClick={() => navigate('/visita')}
+              className="text-xs font-bold text-slate-400 hover:text-primary-600 transition-colors"
+            >
+              Ver Todo
+            </button>
           </div>
 
           <div className="space-y-4">
@@ -331,7 +341,10 @@ const Dashboard = () => {
               <div className="text-center py-12 bg-slate-50/50 rounded-2xl border-2 border-dashed border-slate-200">
                 <Calendar className="w-12 h-12 text-slate-300 mx-auto mb-4" />
                 <p className="text-slate-500 font-bold tracking-tight">Sin Tareas Programadas</p>
-                <button className="mt-4 px-6 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:shadow-md transition-all">
+                <button
+                  onClick={() => navigate('/agenda')}
+                  className="mt-4 px-6 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:shadow-md transition-all"
+                >
                   Programar Visita de Servicio
                 </button>
               </div>

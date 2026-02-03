@@ -146,10 +146,10 @@ const Mantenimientos = () => {
         })}
       </div>
 
-      {/* Modal de Detalle Premium */}
+      {/* Modal Detalle de Mantenimiento */}
       {selectedMantenimiento && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[100] p-4">
-          <div className="bg-white rounded-[2.5rem] lg:rounded-[3rem] shadow-[0_35px_60px_-15px_rgba(0,0,0,0.3)] max-w-4xl w-full max-h-[95vh] overflow-hidden flex flex-col">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-3xl lg:rounded-[2rem] shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto border-none outline-none">
             <div className="p-6 lg:p-10 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
               <div className="flex items-center gap-6">
                 <div className="p-4 bg-primary-500 rounded-3xl shadow-lg shadow-primary-500/20">
