@@ -165,7 +165,10 @@ const Dashboard = () => {
           <div className="flex items-center justify-between mb-8">
             <div>
               <h3 className="text-xl font-bold text-slate-800 tracking-tight text-xl">Monitor de Producción</h3>
-              <p className="text-sm font-medium text-slate-400 mt-1">Comparativa de productos vendidos (20L + 10L)</p>
+              <p className="text-sm font-medium text-slate-400 mt-1">Comparativa de productos vendidos (Garrafones y Litros)</p>
+              <p className="text-[10px] text-slate-400 mt-2 italic bg-slate-50 p-2 rounded-lg border border-slate-100">
+                Tip: La gráfica muestra los totales agrupados por semana para identificar tendencias de crecimiento. Cada punto representa el inicio de una semana.
+              </p>
             </div>
             <div className="flex gap-2">
               <div className="w-3 h-3 bg-primary-500 rounded-full"></div>
@@ -237,10 +240,10 @@ const Dashboard = () => {
 
           <div className="mt-8 p-6 bg-slate-50 rounded-2xl border border-slate-100">
             <div className="flex justify-between items-center mb-1">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Acumulado Mes</span>
-              <span className="text-sm font-bold text-emerald-600">+18%</span>
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Acumulado Total</span>
+              <span className="text-sm font-bold text-emerald-600">Actualizado</span>
             </div>
-            <p className="text-2xl font-extrabold text-slate-800">$14,250.00</p>
+            <p className="text-2xl font-extrabold text-slate-800">${ventas.reduce((acc, v) => acc + v.ingresoTotal, 0).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</p>
           </div>
         </div>
       </div>

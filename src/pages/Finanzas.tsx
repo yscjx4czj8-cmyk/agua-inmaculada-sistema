@@ -7,7 +7,9 @@ import {
   Plus,
   Trash2,
   Receipt,
-  Upload
+  Upload,
+  Coins,
+  History
 } from 'lucide-react';
 import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { format } from 'date-fns';
@@ -30,6 +32,8 @@ const Finanzas = () => {
   const agregarVenta = useStore((state) => state.agregarVenta);
   const agregarGasto = useStore((state) => state.agregarGasto);
   const precios = useStore((state) => state.precios);
+  const cortesCaja = useStore((state) => state.cortesCaja);
+  const agregarCorteCaja = useStore((state) => state.agregarCorteCaja);
 
   const [gastoForm, setGastoForm] = useState({
     concepto: '',
@@ -45,6 +49,12 @@ const Finanzas = () => {
     fecha: format(new Date(), 'yyyy-MM-dd'),
   });
 
+  const [showCorteForm, setShowCorteForm] = useState(false);
+  const [corteForm, setCorteForm] = useState({
+    montoRetirado: 0,
+    observaciones: '',
+  });
+
   // Calcular totales del mes
   const ingresosMes = ventas.reduce((acc, v) => acc + v.ingresoTotal, 0);
   const gastoVariablesMes = gastos.reduce((acc, g) => acc + g.monto, 0);
@@ -52,6 +62,18 @@ const Finanzas = () => {
   const gastosTotalesMes = gastoVariablesMes + gastosFijosMes;
   const utilidadMes = ingresosMes - gastosTotalesMes;
   const margenUtilidad = ((utilidadMes / ingresosMes) * 100).toFixed(1);
+
+  // Dinero en Caja (Corte)
+  const ultimoCorte = cortesCaja[0];
+  const fechaUltimoCorte = ultimoCorte ? new Date(ultimoCorte.fecha) : new Date(2000, 0, 1);
+  const ventasDesdeCorte = ventas
+    .filter(v => new Date(v.semanaInicio) > fechaUltimoCorte)
+    .reduce((acc, v) => acc + v.ingresoTotal, 0);
+  const gastosDesdeCorte = gastos
+    .filter(g => new Date(g.fecha) > fechaUltimoCorte)
+    .reduce((acc, g) => acc + g.monto, 0);
+
+  const dineroEsperado = (ultimoCorte?.efectivoEnCaja || 0) + ventasDesdeCorte - gastosDesdeCorte;
 
   // Datos para gráficas (Agrupar por semana para la tendencia)
   const ventasPorSemana = ventas.reduce((acc: any, v) => {
@@ -144,6 +166,29 @@ const Finanzas = () => {
     }
   };
 
+  const handleCorteCaja = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      const efectivoEnCaja = dineroEsperado - corteForm.montoRetirado;
+      await agregarCorteCaja({
+        fecha: new Date(),
+        montoEfectivoInicial: ultimoCorte?.efectivoEnCaja || 0,
+        ventasAcumuladas: ventasDesdeCorte,
+        gastosEfectivo: gastosDesdeCorte,
+        montoRetirado: corteForm.montoRetirado,
+        efectivoEnCaja: efectivoEnCaja,
+        observaciones: corteForm.observaciones,
+      });
+      setShowCorteForm(false);
+      setCorteForm({ montoRetirado: 0, observaciones: '' });
+    } catch (err) {
+      alert('Error al registrar el corte de caja');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -208,7 +253,65 @@ const Finanzas = () => {
         </div>
       </div>
 
-      {/* Gráficas */}
+      {/* Control de Caja (Corte de Caja) */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="card lg:col-span-1 bg-slate-900 text-white flex flex-col justify-between p-8">
+          <div>
+            <div className="flex justify-between items-start mb-4">
+              <h3 className="text-xl font-bold">Corte de Caja</h3>
+              <Coins className="text-amber-400 w-6 h-6" />
+            </div>
+            <p className="text-slate-400 text-sm">Dinero aproximado en caja hoy:</p>
+            <p className="text-4xl font-black mt-2 text-amber-400">${dineroEsperado.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</p>
+            <p className="text-[10px] text-slate-500 mt-4 leading-relaxed italic">
+              * Calculado desde el último corte ({ultimoCorte ? format(new Date(ultimoCorte.fecha), 'dd/MM HH:mm') : 'Sin historial'}).
+            </p>
+          </div>
+          <button
+            onClick={() => setShowCorteForm(true)}
+            className="mt-8 py-4 bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold rounded-xl transition-all shadow-lg shadow-amber-500/20 active:scale-95"
+          >
+            Hacer Corte / Retiro
+          </button>
+        </div>
+
+        <div className="card lg:col-span-2">
+          <div className="flex items-center gap-2 mb-6">
+            <History className="text-slate-400 w-5 h-5" />
+            <h3 className="text-lg font-bold text-slate-800">Historial de Cortes y Retiros</h3>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left border-b border-slate-100 italic text-slate-400">
+                  <th className="pb-3 px-2">Fecha</th>
+                  <th className="pb-3 px-2">Ventas (+)</th>
+                  <th className="pb-3 px-2">Gastos (-)</th>
+                  <th className="pb-3 px-2">Retirado</th>
+                  <th className="pb-3 px-2 text-right">Saldo Final</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {cortesCaja.length > 0 ? (
+                  cortesCaja.slice(0, 5).map((c) => (
+                    <tr key={c.id}>
+                      <td className="py-3 px-2 font-medium">{format(new Date(c.fecha), 'dd/MM/yy HH:mm')}</td>
+                      <td className="py-3 px-2 text-green-600 font-semibold">+${c.ventasAcumuladas.toLocaleString()}</td>
+                      <td className="py-3 px-2 text-red-500">-${c.gastosEfectivo.toLocaleString()}</td>
+                      <td className="py-3 px-2 text-amber-600">-${c.montoRetirado.toLocaleString()}</td>
+                      <td className="py-3 px-2 text-right font-bold text-slate-800">${c.efectivoEnCaja.toLocaleString()}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={5} className="py-8 text-center text-slate-400">No hay cortes registrados</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="card">
           <h3 className="text-lg font-bold text-gray-800 mb-4">Tendencia de Ingresos</h3>
@@ -574,6 +677,67 @@ const Finanzas = () => {
                     setSubmitError(null);
                   }}
                   className="btn-secondary flex-1"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* Modal Corte de Caja */}
+      {showCorteForm && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-100">
+            <div className="p-8 bg-slate-900 text-white">
+              <h3 className="text-2xl font-black">Registrar Corte</h3>
+              <p className="text-slate-400 text-sm mt-1">Ingresa el monto que vas a retirar físicamente de la caja.</p>
+            </div>
+            <form onSubmit={handleCorteCaja} className="p-8 space-y-6">
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Monto en Caja (Esperado)</p>
+                <p className="text-3xl font-black text-slate-800">${dineroEsperado.toLocaleString()}</p>
+              </div>
+
+              <div>
+                <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Monto a Retirar ($)</label>
+                <input
+                  type="number"
+                  value={corteForm.montoRetirado}
+                  onChange={(e) => setCorteForm({ ...corteForm, montoRetirado: parseFloat(e.target.value) || 0 })}
+                  className="w-full text-2xl font-bold p-4 bg-white border-2 border-slate-100 rounded-2xl focus:border-amber-400 outline-none transition-all"
+                  placeholder="0.00"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Observaciones</label>
+                <textarea
+                  value={corteForm.observaciones}
+                  onChange={(e) => setCorteForm({ ...corteForm, observaciones: e.target.value })}
+                  className="w-full p-4 bg-slate-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-slate-100 min-h-[100px]"
+                  placeholder="Ej: Retiro para gasto X o depósito bancario..."
+                />
+              </div>
+
+              <div className="bg-amber-50 p-4 rounded-2xl border border-amber-100 flex justify-between items-center">
+                <span className="text-sm font-bold text-amber-800">Quedará en caja:</span>
+                <span className="text-lg font-black text-amber-900">${(dineroEsperado - corteForm.montoRetirado).toLocaleString()}</span>
+              </div>
+
+              <div className="flex gap-4">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="flex-1 py-4 bg-slate-900 text-white font-bold rounded-2xl hover:bg-slate-800 transition-all disabled:opacity-50"
+                >
+                  Confirmar Corte
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowCorteForm(false)}
+                  className="px-6 py-4 bg-slate-100 text-slate-500 font-bold rounded-2xl hover:bg-slate-200 transition-all"
                 >
                   Cancelar
                 </button>

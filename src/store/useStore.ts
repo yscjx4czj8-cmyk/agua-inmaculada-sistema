@@ -13,6 +13,8 @@ import {
   Notificacion,
   ConfiguracionPrecios,
   CapituloManual,
+  CorteCaja,
+  VisitaLog,
 } from '../types';
 import { format } from 'date-fns';
 
@@ -61,8 +63,16 @@ interface AppState {
 
   // Visita Semanal
   tareasVisita: TareaVisita[];
+  historialVisitas: VisitaLog[];
   completarTarea: (id: string) => void;
   generarPlanVisita: () => void;
+  fetchHistorialVisitas: () => Promise<void>;
+  guardarVisitaLog: (log: Omit<VisitaLog, 'id'>) => Promise<void>;
+
+  // Cortes de Caja
+  cortesCaja: CorteCaja[];
+  fetchCortesCaja: () => Promise<void>;
+  agregarCorteCaja: (corte: Omit<CorteCaja, 'id'>) => Promise<void>;
 
   // Notificaciones
   notificaciones: Notificacion[];
@@ -182,6 +192,8 @@ export const useStore = create<AppState>((set, get) => ({
   notificaciones: [],
   mantenimientos: mantenimientosIniciales,
   gastosFijos: [],
+  historialVisitas: [],
+  cortesCaja: [],
   precios: {
     garrafon20L: {
       id: 'garrafon20L',
@@ -222,6 +234,8 @@ export const useStore = create<AppState>((set, get) => ({
         get().fetchGastosFijos(),
         get().fetchPrecios(),
         get().fetchNotificaciones(),
+        get().fetchHistorialVisitas(),
+        get().fetchCortesCaja(),
       ]);
     } catch (err) {
       set({ error: 'Error al cargar los datos' });
@@ -745,6 +759,100 @@ export const useStore = create<AppState>((set, get) => ({
       console.error('Error updating product:', err);
       set({ error: err.message, loading: false });
       throw err;
+    }
+  },
+
+  fetchHistorialVisitas: async () => {
+    try {
+      const { data, error } = await supabase
+        .from('bitacora_visitas')
+        .select('*')
+        .order('fecha', { ascending: false });
+      if (error) throw error;
+      set({ historialVisitas: data.map(v => ({ ...v, fecha: new Date(v.fecha), tareasCompletadas: v.tareas_completadas || [] })) });
+    } catch (err: any) {
+      console.error('Error fetching visit logs:', err);
+    }
+  },
+
+  guardarVisitaLog: async (log) => {
+    set({ loading: true });
+    try {
+      const { data, error } = await supabase
+        .from('bitacora_visitas')
+        .insert([{
+          fecha: log.fecha.toISOString(),
+          duracion_segundos: log.duracionSegundos,
+          tareas_completadas: log.tareasCompletadas,
+          observaciones: log.observaciones
+        }])
+        .select();
+      if (error) throw error;
+      if (data) {
+        const nuevo = { ...data[0], fecha: new Date(data[0].fecha), tareasCompletadas: data[0].tareas_completadas };
+        set((state) => ({ historialVisitas: [nuevo, ...state.historialVisitas], loading: false }));
+      }
+    } catch (err: any) {
+      console.error('Error saving visit log:', err);
+      set({ loading: false, error: 'Error al guardar la visita' });
+    }
+  },
+
+  fetchCortesCaja: async () => {
+    try {
+      const { data, error } = await supabase
+        .from('cortes_caja')
+        .select('*')
+        .order('fecha', { ascending: false });
+      if (error) throw error;
+      set({
+        cortesCaja: data.map(c => ({
+          ...c,
+          fecha: new Date(c.fecha),
+          montoEfectivoInicial: c.monto_efectivo_inicial,
+          ventasAcumuladas: c.ventas_acumuladas,
+          gastosEfectivo: c.gastos_efectivo,
+          montoRetirado: c.monto_retirado,
+          efectivoEnCaja: c.efectivo_en_caja,
+          usuarioId: c.usuario_id
+        }))
+      });
+    } catch (err: any) {
+      console.error('Error fetching cash outs:', err);
+    }
+  },
+
+  agregarCorteCaja: async (corte) => {
+    set({ loading: true });
+    try {
+      const { data, error } = await supabase
+        .from('cortes_caja')
+        .insert([{
+          fecha: corte.fecha.toISOString(),
+          monto_efectivo_inicial: corte.montoEfectivoInicial,
+          ventas_acumuladas: corte.ventasAcumuladas,
+          gastos_efectivo: corte.gastosEfectivo,
+          monto_retirado: corte.montoRetirado,
+          efectivo_en_caja: corte.efectivoEnCaja,
+          observaciones: corte.observaciones,
+        }])
+        .select();
+      if (error) throw error;
+      if (data) {
+        const nuevo = {
+          ...data[0],
+          fecha: new Date(data[0].fecha),
+          montoEfectivoInicial: data[0].monto_efectivo_inicial,
+          ventasAcumuladas: data[0].ventas_acumuladas,
+          gastosEfectivo: data[0].gastos_efectivo,
+          montoRetirado: data[0].monto_retirado,
+          efectivoEnCaja: data[0].efectivo_en_caja,
+        };
+        set((state) => ({ cortesCaja: [nuevo, ...state.cortesCaja], loading: false }));
+      }
+    } catch (err: any) {
+      console.error('Error adding cash out:', err);
+      set({ loading: false, error: 'Error al registrar corte de caja' });
     }
   },
 }));

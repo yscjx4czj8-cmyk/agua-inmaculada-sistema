@@ -150,3 +150,23 @@ export interface CapituloManual {
   frecuencia?: string;
   importante?: string;
 }
+
+export interface CorteCaja {
+  id: string;
+  fecha: Date;
+  montoEfectivoInicial: number;
+  ventasAcumuladas: number;
+  gastosEfectivo: number;
+  montoRetirado: number;
+  efectivoEnCaja: number;
+  observaciones?: string;
+  usuarioId?: string;
+}
+
+export interface VisitaLog {
+  id: string;
+  fecha: Date;
+  duracionSegundos: number;
+  tareasCompletadas: string[]; // IDs de tareas
+  observaciones?: string;
+}
